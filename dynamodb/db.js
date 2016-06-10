@@ -7,7 +7,7 @@ var spawn = require('child_process').spawn
 
 const DOWNLOAD_PATH = 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.tar.gz'
     , JAR = 'DynamoDBLocal.jar'
-    , DB_PATH = './bin';
+    , DB_PATH = './dynamodb/bin';
 
 var runningProcesses = {}
     , dynamodb = {
@@ -43,6 +43,7 @@ var runningProcesses = {}
                         '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', port
                     ];
                     args = args.concat(additionalArgs);
+                    console.log(args)
 
                     var child = spawn('java', args, {
                         cwd: DB_PATH
@@ -81,4 +82,5 @@ var runningProcesses = {}
             this.launch(port, db);
         }
     };
+
 module.exports = dynamodb;
