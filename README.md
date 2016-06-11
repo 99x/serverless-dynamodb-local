@@ -16,7 +16,9 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 ## Installation
 
 `npm install serverless-dynamodb-local`
+
 Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
+
 Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 ## Usage and command line options
