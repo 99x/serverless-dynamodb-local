@@ -25,7 +25,9 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 In your project root run:
 `sls dynamodb launch`
+
 All CLI options are optional:
+
 ```
 --port                  -P  Port to listen on. Default: 8000
 ```
