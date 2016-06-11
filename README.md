@@ -13,25 +13,41 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 * Provide you with a set of serverless commands for dynamodb local (e.g launch, stop, relaunch)
 * Allow to specify all the supported commands in dynamodb local (e.g port, inMemory, sharedDb)
 
-### Installation
+## Installation
 
 `npm install serverless-dynamodb-local`
-
 Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
-
 Like this: `"plugins": ["serverless-dynamodb-local"]`
 
-### Usage and command line options
+## Usage and command line options
 
 In your project root run:
-
 `sls dynamodb launch`
-
 All CLI options are optional:
-
 ```
 --port                  -P  Port to listen on. Default: 8000
 ```
+
+## Accessing dynamodb local from your code
+
+You need to add the following parameters to the AWS SDK dynamodb constructor
+e.g. for dynamodb document client sdk
+```
+new AWS.DynamoDB.DocumentClient({
+    region: 'localhost',
+    endpoint: 'http://localhost:8000'
+})
+```
+e.g. for dynamodb document client sdk
+```
+new AWS.DynamoDB({
+    region: 'localhost',
+    endpoint: 'http://localhost:8000'
+})
+Note: Default port: 8000
+```
+
+
 
 ## RoadMap
 
