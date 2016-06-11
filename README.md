@@ -51,5 +51,5 @@ sls dynamodb launch -p 8000 // Note: there are more parameters in the list
 ```
 * Go to [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
 
-# Credits
+## Credits
 Bunch of thanks to doapp-ryanp who started [dynamodb-local](https://github.com/doapp-ryanp/dynamodb-local) project
