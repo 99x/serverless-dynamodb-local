@@ -13,20 +13,32 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 * Provide you with a set of serverless commands for dynamodb local (e.g launch, stop, relaunch)
 * Allow to specify all the supported commands in dynamodb local (e.g port, inMemory, sharedDb)
 
+### Installation
+
+`npm install serverless-dynamodb-local`
+
+Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
+
+Like this: `"plugins": ["serverless-dynamodb-local"]`
+
+### Usage and command line options
+
+In your project root run:
+
+`sls dynamodb launch`
+
+All CLI options are optional:
+
+```
+--port                  -P  Port to listen on. Default: 8000
+```
+
 ## RoadMap
 
 * Allow you to setup dynamodb tables creation scripts, innside your project and enables to execute them locally as well as remotely with a simple set of commands
 * Similar to dynamodb table creation scripts, it also allows to setup your dynamodb data seeds for both local and remote
 * Provides the ability to setup your local development environment with the support of ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin
 * A fantastic and welcoming community!
-
-## Getting Started
-
-* To install the plugin
-```
-npm install serverless-dynamodb-local
-```
-Need your help to write this content ... Parameter [reference](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) 
 
 ## Links
 
