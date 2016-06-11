@@ -4,12 +4,12 @@
     "engines": {
         "node": ">=4.0"
     },
-    "description": "Serverless plugin",
-    "author": "serverless.com",
+    "description": "Serverless dynamodb local plugin",
+    "author": "99xtechnology.com",
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "http://github.com/"
+        "url": "https://github.com/99xt/serverless-dynamodb-local"
     },
     "keywords": [
     "serverless framework plugin",
@@ -17,8 +17,11 @@
     "serverless plugins",
     "api gateway",
     "lambda",
+    "dynamodb",
+    "dynamodb local",
     "aws",
     "aws lambda",
+    "aws dynamodb",
     "amazon",
     "amazon web services",
     "serverless.com"
