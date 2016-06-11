@@ -1,15 +1,16 @@
-# serverless-dynamodb-local
+serverless-dynamodb-local
+=================================
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
 This Serverless 0.5.x plugin help you to setup dynamodb local instance with much needed features to setup your serverless local development environment.
 You can use this with ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin.
 
+# Getting Started
+
 * To install the plugin
   ```
   npm install serverless-dynamodb-local // Note: Yet to be added to npm registry
   ```
-
-# Overview
 
 Need your help to write this content ... Parameter [reference](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) 
 
