@@ -1,4 +1,4 @@
-# serverless-dynamodb-local Plugin
+# serverless-dynamodb-local
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 
 This Serverless 0.5.x plugin help you to setup dynamodb local instance with much needed features to setup your serverless local development environment.
@@ -15,7 +15,7 @@ Need your help to write this content ... Parameter [reference](http://docs.aws.a
 
 # Contributing
 
-## We love our contributors! If you'd like to contribute to the project, feel free to submit a PR. But please keep in mind the following guidelines:
+We love our contributors! If you'd like to contribute to the project, feel free to submit a PR. But please keep in mind the following guidelines:
 
 * Propose your changes before you start working on a PR. You can reach us by submitting a Github issue. This is just to make sure that no one else is working on the same change, and to figure out the best way to solve the issue.
 * If you're out of ideas, but still want to contribute, help us in solving Github issues already verified.
