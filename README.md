@@ -21,7 +21,7 @@ Then in `s-project.json` add following entry to the plugins array: `serverless-d
 
 Like this: `"plugins": ["serverless-dynamodb-local"]`
 
-## Usage and command line options
+## Usage
 
 In your project root run:
 `sls dynamodb launch`
