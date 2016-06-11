@@ -1,15 +1,15 @@
 'use strict';
 
 /* TODO: Replace Q with 'bluebird' promise */
-var Q = require('q')
-    , tar = require('tar')
-    , zlib = require('zlib')
-    , path = require('path')
-    , http = require('http')
-    , fs = require('fs');
+var Q = require('q'),
+    tar = require('tar'),
+    zlib = require('zlib'),
+    path = require('path'),
+    http = require('http'),
+    fs = require('fs');
 
 var install = function (dbPath, downloadPath, jar) {
-    console.log("Checking for ", dbPath);
+    console.log('Checking for ', dbPath);
     var deferred = Q.defer();
 
     try {
@@ -20,19 +20,20 @@ var install = function (dbPath, downloadPath, jar) {
         }
     } catch (e) {}
 
-    console.log("DynamoDb Local not installed. Installing...");
+    console.log('DynamoDb Local not installed. Installing...');
 
-    if (!fs.existsSync(dbPath))
+    if (!fs.existsSync(dbPath)) {
         fs.mkdirSync(dbPath);
+    }
 
     http.get(downloadPath, function (response) {
             if (302 != response.statusCode) {
-                deferred.reject(new Error("Error getting DynamoDb local latest tar.gz location: " + response.statusCode));
+                deferred.reject(new Error('Error getting DynamoDb local latest tar.gz location: ' + response.statusCode));
             }
 
-            http.get(response.headers['location'], function (redirectResponse) {
+            http.get(response.headers.location, function (redirectResponse) {
                     if (200 != redirectResponse.statusCode) {
-                        deferred.reject(new Error("Error getting DynamoDb local latest tar.gz location " + response.headers['location'] + ": " + redirectResponse.statusCode));
+                        deferred.reject(new Error('Error getting DynamoDb local latest tar.gz location ' + response.headers.location + ': ' + redirectResponse.statusCode));
                     }
                     redirectResponse
                         .pipe(zlib.Unzip())
@@ -55,5 +56,5 @@ var install = function (dbPath, downloadPath, jar) {
         });
 
     return deferred.promise;
-}
+};
 module.exports.install = install;

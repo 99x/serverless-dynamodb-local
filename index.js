@@ -16,10 +16,8 @@
  *
  */
 
-const path = require('path')
-    , fs = require('fs')
-    , BbPromise = require('bluebird')
-    , db = require('./dynamodb/db')
+const BbPromise = require('bluebird'),
+    dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
 
@@ -29,7 +27,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
      */
 
     S.classes.Project.launch = function () {
-        console.log("A new method!");
+        console.log('A new method!');
     };
     S.classes.Project.prototype.newMethod = function () {
         S.classes.Project.newStaticMethod();
@@ -64,20 +62,20 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
         registerActions() {
 
             S.addAction(this._launchDynamodb.bind(this), {
-                handler: 'launchDynamodb'
-                , description: 'launch dynamodb local database'
-                , context: 'dynamodb'
-                , contextAction: 'launch'
-                , options: [{ // These must be specified in the CLI like this "-option true" or "-o true"
-                    option: 'port'
-                    , shortcut: 'p'
-                    , description: 'dynamodb port'
-        }]
-                , parameters: [ // Use paths when you multiple values need to be input (like an array).  Input looks like this: "serverless custom run module1/function1 module1/function2 module1/function3.  Serverless will automatically turn this into an array and attach it to evt.options within your plugin
+                handler: 'launchDynamodb',
+                description: 'launch dynamodb local database',
+                context: 'dynamodb',
+                contextAction: 'launch',
+                options: [{ // These must be specified in the CLI like this "-option true" or "-o true"
+                    option: 'port',
+                    shortcut: 'p',
+                    description: 'dynamodb port'
+        }],
+                parameters: [ // Use paths when you multiple values need to be input (like an array).  Input looks like this: "serverless custom run module1/function1 module1/function2 module1/function3.  Serverless will automatically turn this into an array and attach it to evt.options within your plugin
                     {
-                        parameter: 'paths'
-                        , description: 'One or multiple paths to your function'
-                        , position: '0->' // Can be: 0, 0-2, 0->  This tells Serverless which params are which.  3-> Means that number and infinite values after it.
+                        parameter: 'paths',
+                        description: 'One or multiple paths to your function',
+                        position: '0->' // Can be: 0, 0-2, 0->  This tells Serverless which params are which.  3-> Means that number and infinite values after it.
           }
         ]
             });
@@ -94,13 +92,13 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
         registerHooks() {
 
             S.addHook(this._hookPre.bind(this), {
-                action: 'functionRun'
-                , event: 'pre'
+                action: 'functionRun',
+                event: 'pre'
             });
 
             S.addHook(this._hookPost.bind(this), {
-                action: 'functionRun'
-                , event: 'post'
+                action: 'functionRun',
+                event: 'post'
             });
 
             return BbPromise.resolve();
@@ -121,7 +119,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
             return new BbPromise(function (resolve, reject) {
                 let options = evt.options;
 
-                db.launch(options.port || 8000, null, ['-sharedDb'])
+                dynamodb.launch(options.port || 8000, null, ['-sharedDb']);
 
                 // console.log(evt)           // Contains Action Specific data
                 // console.log(_this.S)       // Contains Project Specific data
