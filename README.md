@@ -1,6 +1,8 @@
 serverless-dynamodb-local (beta)
 =================================
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
+[![npm version](https://badge.fury.io/js/serverless-dynamodb-local.svg)](https://badge.fury.io/js/serverless-dynamodb-local)
+[![license](https://img.shields.io/npm/l/serverless-dynamodb-local.svg)](https://www.npmjs.com/package/serverless-dynamodb-local)
 
 This Serverless 0.5.x plugin help you to setup dynamodb local instance with much needed features to setup your serverless local development environment.
 You can use this with ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin.
@@ -10,6 +12,9 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 * Automatically downloads dynamodb local
 * Provide you with a set of serverless commands for dynamodb local (e.g launch, stop, relaunch)
 * Allow to specify all the supported commands in dynamodb local (e.g port, inMemory, sharedDb)
+
+## RoadMap
+
 * Allow you to setup dynamodb tables creation scripts, innside your project and enables to execute them locally as well as remotely with a simple set of commands
 * Similar to dynamodb table creation scripts, it also allows to setup your dynamodb data seeds for both local and remote
 * Provides the ability to setup your local development environment with the support of ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin
@@ -19,7 +24,7 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 
 * To install the plugin
 ```
-npm install serverless-dynamodb-local // Note: Yet to be added to npm registry
+npm install serverless-dynamodb-local
 ```
 Need your help to write this content ... Parameter [reference](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html) 
 
