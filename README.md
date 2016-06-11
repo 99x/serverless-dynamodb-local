@@ -47,8 +47,6 @@ new AWS.DynamoDB({
 Note: Default port: 8000
 ```
 
-
-
 ## RoadMap
 
 * Allow you to setup dynamodb tables creation scripts, innside your project and enables to execute them locally as well as remotely with a simple set of commands
