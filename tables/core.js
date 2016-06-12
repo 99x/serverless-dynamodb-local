@@ -40,7 +40,7 @@ let tables = {
                         if (err) {
                             console.log(err);
                         } else {
-                            console.log(config.Table.TableName + " created successfully!");
+                            console.log("Table creation completed for : " + config.Table.TableName);
                         }
                         resolve(config);
                     });
