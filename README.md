@@ -25,7 +25,7 @@ Then in `s-project.json` add following entry to the plugins array: `serverless-d
 
 Like this: `"plugins": ["serverless-dynamodb-local"]`
 
-## Usage
+## Starting Dynamodb Local
 
 In your project root run:
 `sls dynamodb start`
@@ -59,6 +59,37 @@ All the above options can be added to s-function.json to set default configurati
 
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
+
+## Manage tables and seeds
+
+To store your dynamodb table creation and seed configurations do the following configuration (If not specified default directory <project-root>/dynamodb)
+
+
+```json
+"custom": {
+  "dynamodb": {
+    "table": {
+      "dir": "dynamodbTables",
+      "prefix": "",
+      "suffix": ""
+    }
+  }
+}
+```
+
+To create table & seed template in your project root, run:
+`sls dynamodb table -n <your-table-name>`
+
+This will create a template json inside configured directory. Open the file and edit the table schema and data.
+
+References
+* Defining table schema (Dynamodb SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property
+* Defining data (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
+
+To create table & run the seeds in your project root, run:
+`sls dynamodb table -c`
+
+If you need to prefix_<your-table-name>_suffix, you can configure the values accordingly. This is usefull when you have multiple stages which needs multiple database tables
 
 ## Accessing dynamodb local from your code
 

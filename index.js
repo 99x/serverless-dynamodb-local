@@ -2,6 +2,7 @@
 
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
+    tables = require('./tables/core'),
     dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
@@ -22,6 +23,21 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          */
         registerActions() {
 
+            S.addAction(this._tables.bind(this), {
+                handler: 'table',
+                description: 'New dynamodb table template',
+                context: 'dynamodb',
+                contextAction: 'table',
+                options: [{
+                    option: 'new',
+                    shortcut: 'n',
+                    description: 'Create a new table & seed template for the given table name, inside the directlry given in s-project.json.'
+        }, {
+                    option: 'create',
+                    shortcut: 'c',
+                    description: 'Create dynamodb table and run the seed'
+        }]
+            });
             S.addAction(this._removeDynamodb.bind(this), {
                 handler: 'remove',
                 description: 'Remove dynamodb local database. This is needed if the installed version is currupted or needs to be upgraded.',
@@ -33,11 +49,11 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                 description: 'Start dynamodb local database',
                 context: 'dynamodb',
                 contextAction: 'start',
-                options: [{ // These must be specified in the CLI like this "-port true" or "-p true"
+                options: [{
                     option: 'port',
                     shortcut: 'p',
                     description: 'The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000'
-        }, { // These must be specified in the CLI like this "-port true" or "-p true"
+        }, {
                     option: 'cors',
                     shortcut: 'c',
                     description: 'Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.'
@@ -87,6 +103,25 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
 
         _removeDynamodb() {
             return dynamodb.remove();
+        }
+
+        _tables(evt) {
+            let options = evt.options,
+                config = S.getProject().custom.dynamodb,
+                table = config && config.table || {},
+                rootPath = S.getProject().getRootPath(),
+                tablesPath = rootPath + '/' + (table.dir || 'dynamodb'),
+                suffix = table.suffix || '',
+                prefix = table.prefix || '';
+
+            if (options.new) {
+                return tables.newTemplate(options.new, tablesPath);
+            } else if (options.create) {
+                return tables.create(tablesPath, {
+                    prefix: prefix,
+                    suffix: suffix
+                });
+            }
         }
     }
 

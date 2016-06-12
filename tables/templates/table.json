@@ -1,0 +1,59 @@
+{
+    "Table": {
+        "TableName": "TableName",
+        "KeySchema": [{
+            "AttributeName": "attr_1",
+            "KeyType": "HASH"
+		}, {
+            "AttributeName": "attr_2",
+            "KeyType": "RANGE"
+		}],
+        "AttributeDefinitions": [{
+            "AttributeName": "attr_1",
+            "AttributeType": "S"
+		}, {
+            "AttributeName": "attr_2",
+            "AttributeType": "N"
+		}],
+        "LocalSecondaryIndexes": [{
+            "IndexName": "local_index_1",
+            "KeySchema": [{
+                "AttributeName": "attr_1",
+                "KeyType": "HASH"
+			}, {
+                "AttributeName": "attr_2",
+                "KeyType": "RANGE"
+			}],
+            "Projection": {
+                "NonKeyAttributes": ["attr_1", "attr_2"],
+                "ProjectionType": "INCLUDE"
+            }
+		}],
+        "GlobalSecondaryIndexes": [{
+            "IndexName": "global_index_1",
+            "KeySchema": [{
+                "AttributeName": "attr_1",
+                "KeyType": "HASH"
+			}, {
+                "AttributeName": "attr_2",
+                "KeyType": "RANGE"
+			}],
+            "Projection": {
+                "NonKeyAttributes": ["attr_1", "attr_2"],
+                "ProjectionType": "INCLUDE"
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+            }
+		}],
+        "ProvisionedThroughput": {
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        }
+    },
+    "Seeds": [{
+        "attr_1": "attr_1_value",
+        "attr_2": "attr_2_value"
+    }]
+}

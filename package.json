@@ -1,17 +1,17 @@
 {
-    "name": "serverless-dynamodb-local",
-    "version": "0.0.7",
-    "engines": {
-        "node": ">=4.0"
-    },
-    "description": "Serverless dynamodb local plugin",
-    "author": "99xtechnology.com",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/99xt/serverless-dynamodb-local"
-    },
-    "keywords": [
+  "name": "serverless-dynamodb-local",
+  "version": "0.0.7",
+  "engines": {
+    "node": ">=4.0"
+  },
+  "description": "Serverless dynamodb local plugin",
+  "author": "99xtechnology.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/99xt/serverless-dynamodb-local"
+  },
+  "keywords": [
     "serverless framework plugin",
     "serverless applications",
     "serverless plugins",
@@ -26,19 +26,20 @@
     "amazon web services",
     "serverless.com"
   ],
-    "main": "index.js",
-    "bin": {},
-    "scripts": {
-        "test": "mocha tests/all"
-    },
-    "devDependencies": {
-        "chai": "^3.2.0",
-        "mocha": "^2.2.5"
-    },
-    "dependencies": {
-        "bluebird": "^3.0.6",
-        "lodash": "^4.13.1",
-        "mkdirp": "^0.5.0",
-        "tar": "^2.0.0"
-    }
+  "main": "index.js",
+  "bin": {},
+  "scripts": {
+    "test": "mocha tests/all"
+  },
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "mocha": "^2.2.5"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.3.19",
+    "bluebird": "^3.0.6",
+    "lodash": "^4.13.1",
+    "mkdirp": "^0.5.0",
+    "tar": "^2.0.0"
+  }
 }
