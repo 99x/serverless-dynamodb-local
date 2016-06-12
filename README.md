@@ -40,7 +40,7 @@ All CLI options are optional:
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
 ```
 
-To remove the installed dynamodb local run:
+To remove the installed dynamodb local, run:
 `sls dynamodb remove`
 
 ## Accessing dynamodb local from your code
