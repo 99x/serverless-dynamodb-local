@@ -85,14 +85,14 @@ This will create a template json inside configured directory. Open the file and 
 
 References
 * Defining table schema (Dynamodb SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property
-* Defining data (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
+* Defining seeds (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
 
 To create table & run the seeds in your project root, run:
 `sls dynamodb table -c`
 
 If you need to prefix_<your-table-name>_suffix, you can configure the values accordingly. This is usefull when you have multiple stages which needs multiple database tables
 
-Optionally if you want to create the tables and run the seeds on dynamodb start dynamodb local with -c argument or add the "create": true inside s-project.json as shown below
+Optionally if you want to create the tables and run the seeds on dynamodb starts, use the argument -c or add the "create": true inside s-project.json as shown below
 
 ```json
 "custom": {
@@ -129,10 +129,7 @@ Note: Default port: 8000 and if you change the port, change it accordingly in us
 
 ## Coming up
 
-* Allow you to setup dynamodb tables creation scripts, innside your project and enables to execute them locally as well as remotely with a simple set of commands
-* Similar to dynamodb table creation scripts, it also allows to setup your dynamodb data seeds for both local and remote
-* Provides the ability to setup your local development environment with the support of ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin
-* A fantastic and welcoming community!
+* Allow to create tables & run seeds remotely with a simple set of commands.
 
 ## Links
 

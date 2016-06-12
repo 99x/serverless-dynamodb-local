@@ -130,6 +130,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
             return new BbPromise(function (resolve, reject) {
                 if (options.create) {
                     dynamodb.start(options).then(function () {
+                        console.log(""); // seperator
                         self._tables(evt).then(resolve, reject);
                     });
                 } else {
