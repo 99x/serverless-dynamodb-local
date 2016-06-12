@@ -1,50 +1,11 @@
 'use strict';
 
-/**
- * Serverless Plugin Boilerplate
- * - Useful example/starter code for writing a plugin for the Serverless Framework.
- * - In a plugin, you can:
- *    - Manipulate Serverless classes
- *    - Create a Custom Action that can be called via the CLI or programmatically via a function handler.
- *    - Overwrite a Core Action that is included by default in the Serverless Framework.
- *    - Add a hook that fires before or after a Core Action or a Custom Action
- *    - All of the above at the same time :)
- *
- * - Setup:
- *    - Make a Serverless Project dedicated for plugin development, or use an existing Serverless Project
- *    - Make a "plugins" folder in the root of your Project and copy this codebase into it. Title it your custom plugin name with the suffix "-dev", like "myplugin-dev"
- *
- */
-
 const BbPromise = require('bluebird'),
     dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
 
-    /**
-     * Adding/Manipulating Serverless classes
-     * - You can add or manipulate Serverless classes like this
-     */
-
-    S.classes.Project.launch = function () {
-        console.log('A new method!');
-    };
-    S.classes.Project.prototype.newMethod = function () {
-        S.classes.Project.newStaticMethod();
-    };
-
-    /**
-     * Extending the Plugin Class
-     * - Here is how you can add custom Actions and Hooks to Serverless.
-     * - This class is only required if you want to add Actions and Hooks.
-     */
-
-    class PluginBoilerplate extends S.classes.Plugin {
-
-        /**
-         * Constructor
-         * - Keep this and don't touch it unless you know what you're doing.
-         */
+    class DynamodbLocal extends S.classes.Plugin {
 
         constructor() {
             super();
@@ -58,47 +19,48 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          * - If you would like your Action to be used via the CLI, include a "description", "context", "action" and any options you would like to offer.
          * - Your custom Action can be called programatically and via CLI, as in the example provided below
          */
-
         registerActions() {
 
-            S.addAction(this._launchDynamodb.bind(this), {
-                handler: 'launchDynamodb',
-                description: 'launch dynamodb local database',
+            S.addAction(this._removeDynamodb.bind(this), {
+                handler: 'remove',
+                description: 'Remove dynamodb local database. This is needed if the installed version is currupted or needs to be upgraded.',
                 context: 'dynamodb',
-                contextAction: 'launch',
-                options: [{ // These must be specified in the CLI like this "-option true" or "-o true"
+                contextAction: 'remove'
+            });
+            S.addAction(this._startDynamodb.bind(this), {
+                handler: 'start',
+                description: 'Start dynamodb local database',
+                context: 'dynamodb',
+                contextAction: 'start',
+                options: [{ // These must be specified in the CLI like this "-port true" or "-p true"
                     option: 'port',
                     shortcut: 'p',
-                    description: 'dynamodb port'
-        }],
-                parameters: [ // Use paths when you multiple values need to be input (like an array).  Input looks like this: "serverless custom run module1/function1 module1/function2 module1/function3.  Serverless will automatically turn this into an array and attach it to evt.options within your plugin
-                    {
-                        parameter: 'paths',
-                        description: 'One or multiple paths to your function',
-                        position: '0->' // Can be: 0, 0-2, 0->  This tells Serverless which params are which.  3-> Means that number and infinite values after it.
-          }
-        ]
-            });
-
-            return BbPromise.resolve();
-        }
-
-        /**
-         * Register Hooks
-         * - If you would like to register hooks (i.e., functions) that fire before or after a core Serverless Action or your Custom Action, include this function.
-         * - Make sure to identify the Action you want to add a hook for and put either "pre" or "post" to describe when it should happen.
-         */
-
-        registerHooks() {
-
-            S.addHook(this._hookPre.bind(this), {
-                action: 'functionRun',
-                event: 'pre'
-            });
-
-            S.addHook(this._hookPost.bind(this), {
-                action: 'functionRun',
-                event: 'post'
+                    description: 'The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000'
+        }, { // These must be specified in the CLI like this "-port true" or "-p true"
+                    option: 'cors',
+                    shortcut: 'c',
+                    description: 'Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.'
+        }, {
+                    option: 'inMemory',
+                    shortcut: 'm',
+                    description: 'DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.'
+        }, {
+                    option: 'dbPath',
+                    shortcut: 'd',
+                    description: 'The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.'
+        }, {
+                    option: 'sharedDb',
+                    shortcut: 'r',
+                    description: 'DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.'
+        }, {
+                    option: 'delayTransientStatuses',
+                    shortcut: 't',
+                    description: 'Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)'
+        }, {
+                    option: 'optimizeDbBeforeStartup',
+                    shortcut: 'o',
+                    description: 'Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.'
+        }]
             });
 
             return BbPromise.resolve();
@@ -111,77 +73,16 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          * - The "evt" object contains Action-specific data.  You can add custom data to it, but if you change any data it will affect subsequent Actions and Hooks.
          * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
          */
-
-        _launchDynamodb(evt) {
-
-            let _this = this;
-
-            return new BbPromise(function (resolve, reject) {
-                let options = evt.options;
-
-                dynamodb.launch(options.port || 8000, null, ['-sharedDb']);
-
-                // console.log(evt)           // Contains Action Specific data
-                // console.log(_this.S)       // Contains Project Specific data
-                // console.log(_this.S.state) // Contains tons of useful methods for you to use in your plugin.  It's the official API for plugin developers.
-
-                console.log('-------------------');
-                console.log('Starting dynamodb local..');
-                console.log('-------------------');
-
-                return resolve(evt);
-
-            });
+        _startDynamodb(evt) {
+            let options = evt.options;
+            options.sharedDb = options.sharedDb || true; // Default sharedDb = true
+            return dynamodb.start(options);
         }
 
-        /**
-         * Your Custom PRE Hook
-         * - Here is an example of a Custom PRE Hook.  Include this and modify it if you would like to write your a hook that fires BEFORE an Action.
-         * - Be sure to ALWAYS accept and return the "evt" object, or you will break the entire flow.
-         * - The "evt" object contains Action-specific data.  You can add custom data to it, but if you change any data it will affect subsequent Actions and Hooks.
-         * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
-         */
-
-        _hookPre(evt) {
-
-            let _this = this;
-
-            return new BbPromise(function (resolve, reject) {
-
-                console.log('-------------------');
-                console.log('YOUR SERVERLESS PLUGIN\'S CUSTOM "PRE" HOOK HAS RUN BEFORE "FunctionRun"');
-                console.log('-------------------');
-
-                return resolve(evt);
-
-            });
-        }
-
-        /**
-         * Your Custom POST Hook
-         * - Here is an example of a Custom POST Hook.  Include this and modify it if you would like to write your a hook that fires AFTER an Action.
-         * - Be sure to ALWAYS accept and return the "evt" object, or you will break the entire flow.
-         * - The "evt" object contains Action-specific data.  You can add custom data to it, but if you change any data it will affect subsequent Actions and Hooks.
-         * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
-         */
-
-        _hookPost(evt) {
-
-            let _this = this;
-
-            return new BbPromise(function (resolve, reject) {
-
-                console.log('-------------------');
-                console.log('YOUR SERVERLESS PLUGIN\'S CUSTOM "POST" HOOK HAS RUN AFTER "FunctionRun"');
-                console.log('-------------------');
-
-                return resolve(evt);
-
-            });
+        _removeDynamodb() {
+            return dynamodb.remove();
         }
     }
 
-    // Export Plugin Class
-    return PluginBoilerplate;
-
+    return DynamodbLocal;
 };

@@ -7,11 +7,13 @@ serverless-dynamodb-local (beta)
 This Serverless 0.5.x plugin help you to setup dynamodb local instance with much needed features to setup your serverless local development environment.
 You can use this with ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin.
 
+DynamoDB on your computer requires the Java Runtime Engine (JRE) version 6.x or newer; it will not run on older JRE versions. DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
+
 ## Features
 
 * Automatically downloads dynamodb local
-* Provide you with a set of serverless commands for dynamodb local (e.g launch, stop, relaunch)
-* Allow to specify all the supported commands in dynamodb local (e.g port, inMemory, sharedDb)
+* Allow to specify all the supported parameters in dynamodb local (e.g port, inMemory, sharedDb)
+* Provide you with a set of serverless commands for dynamodb local (e.g seeds, tables)
 
 ## Installation
 
@@ -24,13 +26,22 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 ## Usage
 
 In your project root run:
-`sls dynamodb launch`
+`sls dynamodb start`
 
 All CLI options are optional:
 
 ```
---port                  -P  Port to listen on. Default: 8000
+--port                    -p  Port to listen on. Default: 8000
+--cors                    -c  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
+--inMemory                -m  DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.
+--dbPath                  -d  The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.
+--sharedDb                -r  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
+--delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
+--optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
 ```
+
+To remove the installed dynamodb local run:
+`sls dynamodb remove`
 
 ## Accessing dynamodb local from your code
 
@@ -50,8 +61,10 @@ new AWS.DynamoDB({
     endpoint: 'http://localhost:8000'
 })
 
-Note: Default port: 8000
 ```
+Open a browser and go the url http://localhost:8000/shell to access the web shell for dynamodb local
+
+Note: Default port: 8000 and if you change the port, change it accordingly in usage
 
 ## RoadMap
 
@@ -85,9 +98,9 @@ You can also contribute by writing. Feel free to let us know if you want to publ
 "serverless-dynamodb-local"
 ]
 ```
-* Open a commandline from your root Project folder and Launch a new dynamodb instance by running 
+* Open a commandline from your root Project folder and Start a new dynamodb instance by running 
 ```
-sls dynamodb launch -p 8000 // Note: there are more parameters in the list
+sls dynamodb start -p 8000 // Note: there are more parameters in the list
 ```
 * Go to [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
 
