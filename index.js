@@ -1,6 +1,7 @@
 'use strict';
 
-const BbPromise = require('bluebird'),
+const _ = require('lodash'),
+    BbPromise = require('bluebird'),
     dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
@@ -74,8 +75,13 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
          */
         _startDynamodb(evt) {
-            let options = evt.options;
-            options.sharedDb = options.sharedDb || true; // Default sharedDb = true
+            var config = S.getProject().custom.dynamodb;
+            let options = _.merge({
+                    sharedDb: evt.options.sharedDb || true
+                },
+                evt.options,
+                config && config.start
+            );
             return dynamodb.start(options);
         }
 

@@ -44,6 +44,18 @@ All CLI options are optional:
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
 ```
 
+All the above options can be added to s-function.json to set default configuration: e.g
+
+```json
+"custom": {
+  "dynamodb": {
+    "start": {
+      "port": "9000",
+      "inMemory": true
+    }
+  }
+}
+
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
 
