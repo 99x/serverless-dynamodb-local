@@ -34,59 +34,56 @@ let runningProcesses = {},
                 let additionalArgs = [];
                 options.port = options.port || 8000;
 
-                writeFile(DB_PATH + '/options.json', options).then(function () {
+                if (options.dbPath) { //
+                    additionalArgs.push('-dbPath', options.dbPath);
+                } else {
+                    additionalArgs.push('-inMemory');
+                }
+                if (options.sharedDb) {
+                    additionalArgs.push('-sharedDb');
+                }
+                if (options.cors) {
+                    additionalArgs.push('-cors', options.cors);
+                }
+                if (options.delayTransientStatuses) {
+                    additionalArgs.push('-delayTransientStatuses');
+                }
+                if (options.optimizeDbBeforeStartup) {
+                    additionalArgs.push('-optimizeDbBeforeStartup');
+                }
+                if (options.help) {
+                    additionalArgs.push('-help');
+                }
 
-                    if (options.dbPath) { //
-                        additionalArgs.push('-dbPath', options.dbPath);
-                    } else {
-                        additionalArgs.push('-inMemory');
-                    }
-                    if (options.sharedDb) {
-                        additionalArgs.push('-sharedDb');
-                    }
-                    if (options.cors) {
-                        additionalArgs.push('-cors', options.cors);
-                    }
-                    if (options.delayTransientStatuses) {
-                        additionalArgs.push('-delayTransientStatuses');
-                    }
-                    if (options.optimizeDbBeforeStartup) {
-                        additionalArgs.push('-optimizeDbBeforeStartup');
-                    }
-                    if (options.help) {
-                        additionalArgs.push('-help');
-                    }
-
-                    installer.setup(DB_PATH, DOWNLOAD_PATH, JAR)
-                        .then(function () {
-                            let args = [
+                installer.setup(DB_PATH, DOWNLOAD_PATH, JAR)
+                    .then(function () {
+                        let args = [
                         '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', options.port
                     ];
-                            args = args.concat(additionalArgs);
-                            let child = spawn('java', args, {
-                                cwd: DB_PATH,
-                                env: process.env,
-                                stdio: ['pipe', 'pipe', process.stderr]
-                            });
-                            if (!child.pid) {
-                                throw new Error('Unable to start DynamoDB Local process!');
-                            }
-                            child
-                                .on('error', function (err) {
-                                    console.log('DynamoDB local start error', err);
-                                    throw new Error('DynamoDB Local failed to start!');
-                                })
-                                .on('close', function (code) {
-                                    if (code !== null && code !== 0) {
-                                        console.log('DynamoDB Local failed to start with code', code);
-                                    }
-                                });
-                            runningProcesses[options.port] = child;
-                            console.log('Started: Dynamodb local(pid=' + child.pid + ') ', 'via java', args.join(' '));
-                            console.log('Visit: http://localhost:' + options.port + '/shell');
-                            resolve();
+                        args = args.concat(additionalArgs);
+                        let child = spawn('java', args, {
+                            cwd: DB_PATH,
+                            env: process.env,
+                            stdio: ['pipe', 'pipe', process.stderr]
                         });
-                }, reject);
+                        if (!child.pid) {
+                            throw new Error('Unable to start DynamoDB Local process!');
+                        }
+                        child
+                            .on('error', function (err) {
+                                console.log('DynamoDB local start error', err);
+                                throw new Error('DynamoDB Local failed to start!');
+                            })
+                            .on('close', function (code) {
+                                if (code !== null && code !== 0) {
+                                    console.log('DynamoDB Local failed to start with code', code);
+                                }
+                            });
+                        runningProcesses[options.port] = child;
+                        console.log('Started: Dynamodb local(pid=' + child.pid + ') ', 'via java', args.join(' '));
+                        console.log('Visit: http://localhost:' + options.port + '/shell');
+                        writeFile(DB_PATH + '/options.json', options).then(resolve, reject);
+                    });
             });
         },
         stop: function (port) {
