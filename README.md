@@ -7,7 +7,9 @@ serverless-dynamodb-local
 This Serverless 0.5.x plugin help you to setup dynamodb local instance with much needed features to setup your serverless local development environment.
 You can use this with ['serverless-offline'](https://github.com/dherault/serverless-offline) Plugin.
 
-DynamoDB on your computer requires the Java Runtime Engine (JRE) version 6.x or newer; it will not run on older JRE versions. DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
+## This Plugin Requires
+* Serverless V0.5 or newer
+* Java Runtime Engine (JRE) version 6.x or newer
 
 ## Features
 
@@ -27,6 +29,8 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 In your project root run:
 `sls dynamodb start`
+
+DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
 
 All CLI options are optional:
 
