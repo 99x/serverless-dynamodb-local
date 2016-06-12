@@ -19,7 +19,8 @@ let runningProcesses = {},
         start: function (options) {
             return new BbPromise(function (resolve) {
                 /* Dynamodb local documentation http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html */
-                let additionalArgs = [];
+                let additionalArgs = [],
+                    port = options.port || 8000;
 
                 if (options.dbPath) { //
                     additionalArgs.push('-dbPath', options.dbPath);
@@ -45,7 +46,7 @@ let runningProcesses = {},
                 installer.setup(DB_PATH, DOWNLOAD_PATH, JAR)
                     .then(function () {
                         let args = [
-                        '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', options.port || 8000
+                        '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', port
                     ];
                         args = args.concat(additionalArgs);
                         let child = spawn('java', args, {
@@ -68,6 +69,7 @@ let runningProcesses = {},
                             });
                         runningProcesses[options.port] = child;
                         console.log('Started: Dynamodb local(pid=' + child.pid + ') ', 'via java', args.join(' '));
+                        console.log('Visit: http://localhost:' + port + '/shell');
                         resolve();
                     });
             });
