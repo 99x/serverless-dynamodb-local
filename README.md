@@ -102,7 +102,7 @@ You can also contribute by writing. Feel free to let us know if you want to publ
 ```
 sls dynamodb start
 ```
-* Go to [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
+* Go to dynamodb local [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
 
 ## Credits
 
