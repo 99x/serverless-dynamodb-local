@@ -35,7 +35,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
         }, {
                     option: 'create',
                     shortcut: 'c',
-                    description: 'Create dynamodb table and run the seed'
+                    description: 'Create dynamodb tables and run seeds'
         }]
             });
             S.addAction(this._removeDynamodb.bind(this), {
@@ -55,7 +55,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                     description: 'The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000'
         }, {
                     option: 'cors',
-                    shortcut: 'c',
+                    shortcut: 'r',
                     description: 'Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.'
         }, {
                     option: 'inMemory',
@@ -67,7 +67,7 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                     description: 'The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.'
         }, {
                     option: 'sharedDb',
-                    shortcut: 'r',
+                    shortcut: 'h',
                     description: 'DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.'
         }, {
                     option: 'delayTransientStatuses',
@@ -77,6 +77,10 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                     option: 'optimizeDbBeforeStartup',
                     shortcut: 'o',
                     description: 'Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.'
+        }, {
+                    option: 'create',
+                    shortcut: 'c',
+                    description: 'After starting dynamodb local, create dynamodb tables and run seeds'
         }]
             });
 
@@ -90,16 +94,6 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          * - The "evt" object contains Action-specific data.  You can add custom data to it, but if you change any data it will affect subsequent Actions and Hooks.
          * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
          */
-        _startDynamodb(evt) {
-            var config = S.getProject().custom.dynamodb;
-            let options = _.merge({
-                    sharedDb: evt.options.sharedDb || true
-                },
-                evt.options,
-                config && config.start
-            );
-            return dynamodb.start(options);
-        }
 
         _removeDynamodb() {
             return dynamodb.remove();
@@ -122,6 +116,26 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                     suffix: suffix
                 });
             }
+        }
+
+        _startDynamodb(evt) {
+            var self = this,
+                config = S.getProject().custom.dynamodb;
+            let options = _.merge({
+                    sharedDb: evt.options.sharedDb || true
+                },
+                evt.options,
+                config && config.start
+            );
+            return new BbPromise(function (resolve, reject) {
+                if (options.create) {
+                    dynamodb.start(options).then(function () {
+                        self._tables(evt).then(resolve, reject);
+                    });
+                } else {
+                    dynamodb.start(options).then(resolve, reject);
+                }
+            });
         }
     }
 

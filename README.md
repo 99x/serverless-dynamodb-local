@@ -36,12 +36,13 @@ All CLI options are optional:
 
 ```
 --port                    -p  Port to listen on. Default: 8000
---cors                    -c  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
+--cors                    -r  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
 --inMemory                -m  DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.
 --dbPath                  -d  The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.
---sharedDb                -r  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
+--sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
+--create                  -c  After starting dynamodb local, create dynamodb tables and run seeds. Check the "Manage tables and seeds" section for more information.
 ```
 
 All the above options can be added to s-function.json to set default configuration: e.g
@@ -50,8 +51,9 @@ All the above options can be added to s-function.json to set default configurati
 "custom": {
   "dynamodb": {
     "start": {
-      "port": "9000",
-      "inMemory": true
+      "port": "8000",
+      "inMemory": true,
+      "create": true
     }
   }
 }
@@ -62,8 +64,7 @@ To remove the installed dynamodb local, run:
 
 ## Manage tables and seeds
 
-To store your dynamodb table creation and seed configurations do the following configuration (If not specified default directory <project-root>/dynamodb)
-
+Start dynamodb local instance in another window before running the following commands. To store your dynamodb table creation and seed configurations do the following configuration (If not specified default directory <project-root>/dynamodb)
 
 ```json
 "custom": {
@@ -90,6 +91,18 @@ To create table & run the seeds in your project root, run:
 `sls dynamodb table -c`
 
 If you need to prefix_<your-table-name>_suffix, you can configure the values accordingly. This is usefull when you have multiple stages which needs multiple database tables
+
+Optionally if you want to create the tables and run the seeds on dynamodb start dynamodb local with -c argument or add the "create": true inside s-project.json as shown below
+
+```json
+"custom": {
+  "dynamodb": {
+    "start": {
+      "create": true
+    }
+  }
+}
+```
 
 ## Accessing dynamodb local from your code
 

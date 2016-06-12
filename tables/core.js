@@ -3,16 +3,9 @@
 let BbPromise = require('bluebird'),
     fs = require('fs'),
     AWS = require('aws-sdk'),
-    dynamodbLocalOptions = {
-        region: "localhost",
-        endpoint: "http://localhost:8000"
-    },
-    dynamodb = {
-        doc: new AWS.DynamoDB.DocumentClient(dynamodbLocalOptions),
-        raw: new AWS.DynamoDB(dynamodbLocalOptions)
-    },
     path = require('path'),
-    currentPath = path.dirname(__filename);
+    currentPath = path.dirname(__filename),
+    optionsPath = path.join(__dirname, '../dynamodb/bin/options.json');
 
 let tables = {
     newTemplate: function (name, tablesPath) {
@@ -32,11 +25,22 @@ let tables = {
         });
     },
     create: function (tablesPath, options) {
-        let createTable = function (config) {
+        let savedOptions = require(optionsPath),
+            dynamodbLocalOptions = {
+                region: "localhost",
+                endpoint: "http://localhost:" + savedOptions.port
+            },
+            dynamodb = {
+                doc: new AWS.DynamoDB.DocumentClient(dynamodbLocalOptions),
+                raw: new AWS.DynamoDB(dynamodbLocalOptions)
+            },
+            createTable = function (config) {
                 return new BbPromise(function (resolve) {
                     dynamodb.raw.createTable(config.Table, function (err) {
                         if (err) {
                             console.log(err);
+                        } else {
+                            console.log(config.Table.TableName + " created successfully!");
                         }
                         resolve(config);
                     });
@@ -58,22 +62,22 @@ let tables = {
                 return new BbPromise(function (resolve, reject) {
                     dynamodb.doc.batchWrite(params, function (err) {
                         if (err) {
+                            console.log(err);
                             reject(err);
                         } else {
+                            console.log("Seed running complete for table: " + config.Table.TableName);
                             resolve(config);
                         }
                     });
                 });
             };
-        /* Create all the tables first */
-        fs.readdirSync(tablesPath).forEach(function (file) {
-            var config = require(tablesPath + '/' + file);
-            config.Table.TableName = options.prefix + config.Table.TableName + options.suffix;
-            createTable(config).then(function (createdTableConfig) {
-                console.log(createdTableConfig.Table.TableName + " table created!");
-                // TODO: Seed running is not working
-                runSeeds(createdTableConfig).then(function (createdSeedConfig) {
-                    console.log(createdSeedConfig.Table.TableName + " seed running complete!");
+
+        return new BbPromise(function (resolve, reject) {
+            fs.readdirSync(tablesPath).forEach(function (file) {
+                var config = require(tablesPath + '/' + file);
+                config.Table.TableName = options.prefix + config.Table.TableName + options.suffix;
+                createTable(config).then(function (createdTableConfig) {
+                    runSeeds(createdTableConfig).then(resolve, reject);
                 });
             });
         });
