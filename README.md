@@ -1,4 +1,4 @@
-serverless-dynamodb-local (beta)
+serverless-dynamodb-local
 =================================
 [![serverless](http://public.serverless.com/badges/v3.svg)](http://www.serverless.com)
 [![npm version](https://badge.fury.io/js/serverless-dynamodb-local.svg)](https://badge.fury.io/js/serverless-dynamodb-local)
@@ -66,7 +66,7 @@ Open a browser and go the url http://localhost:8000/shell to access the web shel
 
 Note: Default port: 8000 and if you change the port, change it accordingly in usage
 
-## RoadMap
+## Coming up
 
 * Allow you to setup dynamodb tables creation scripts, innside your project and enables to execute them locally as well as remotely with a simple set of commands
 * Similar to dynamodb table creation scripts, it also allows to setup your dynamodb data seeds for both local and remote
@@ -100,7 +100,7 @@ You can also contribute by writing. Feel free to let us know if you want to publ
 ```
 * Open a commandline from your root Project folder and Start a new dynamodb instance by running 
 ```
-sls dynamodb start -p 8000 // Note: there are more parameters in the list
+sls dynamodb start
 ```
 * Go to [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
 
