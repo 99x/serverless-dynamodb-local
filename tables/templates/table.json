@@ -13,7 +13,7 @@
             "AttributeType": "S"
 		}, {
             "AttributeName": "attr_2",
-            "AttributeType": "N"
+            "AttributeType": "S"
 		}],
         "LocalSecondaryIndexes": [{
             "IndexName": "local_index_1",
