@@ -55,6 +55,7 @@ All the above options can be added to s-function.json to set default configurati
     }
   }
 }
+```
 
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
