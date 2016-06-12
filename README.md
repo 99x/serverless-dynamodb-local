@@ -79,7 +79,7 @@ new AWS.DynamoDB({
 })
 
 ```
-Open a browser and go the url http://localhost:8000/shell to access the web shell for dynamodb local
+Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local
 
 Note: Default port: 8000 and if you change the port, change it accordingly in usage
 
@@ -108,11 +108,11 @@ You can also contribute by writing. Feel free to let us know if you want to publ
 ## Development Setup
 
 * Make a Serverless Project dedicated for plugin development, or use an existing Serverless Project
-* Make a "plugins" folder in the root of your Project and copy this codebase into it. Title it your custom plugin name with the suffix "-dev", like "myplugin-dev"
+* Make a "plugins" folder in the root of your Project and copy this codebase into it. Title it your custom plugin name with the suffix "-dev", like "serverless-dynamodb-local-dev"
 * Go to root of your Project and edit the s-project.json and add
 ```
 "plugins": [
-"serverless-dynamodb-local"
+"serverless-dynamodb-local-dev"
 ]
 ```
 * Open a commandline from your root Project folder and Start a new dynamodb instance by running 
