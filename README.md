@@ -29,7 +29,7 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 ## Starting Dynamodb Local
 
-In your project root run:
+In your project root run (Note: Run this command first before any other command, since it will download the dynamodb local during the first run):
 `sls dynamodb start`
 
 DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
