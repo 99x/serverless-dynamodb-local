@@ -6,6 +6,7 @@ const _ = require('lodash'),
     dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
+	const SCli = require(S.getServerlessPath('utils/cli'));
 
     class DynamodbLocal extends S.classes.Plugin {
 
@@ -120,7 +121,9 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
 
         _startDynamodb(evt) {
             var self = this,
-                config = S.getProject().custom.dynamodb;
+                config = S.getProject().custom.dynamodb,
+				_spinner = SCli.spinner();			
+			 
             let options = _.merge({
                     sharedDb: evt.options.sharedDb || true
                 },
@@ -129,12 +132,13 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
             );
             return new BbPromise(function (resolve, reject) {
                 if (options.create) {
-                    dynamodb.start(options).then(function () {
+					dynamodb.start(options).then(function () {
                         console.log(""); // seperator
                         self._tables(evt).then(resolve, reject);
                     });
                 } else {
-                    dynamodb.start(options).then(resolve, reject);
+					_spinner.start();
+				    dynamodb.start(options, _spinner).then(resolve, reject);
                 }
             });
         }

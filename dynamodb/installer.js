@@ -6,9 +6,10 @@ let BbPromise = require('bluebird'),
     path = require('path'),
     http = require('http'),
     fs = require('fs');
+	
 
-let download = function (source, destination) {
-    let createDir = function (path) {
+let download = function (source, destination, spinner) {
+	let createDir = function (path) {
         if (!fs.existsSync(path)) {
             fs.mkdirSync(path);
         }
@@ -23,7 +24,7 @@ let download = function (source, destination) {
                         let len = parseInt(redirectResponse.headers['content-length'], 10),
                             cur = 0,
                             total = len / 1048576; //1048576 - bytes in 1Megabyte
-                        console.log("Downloading dynamodb local (Size " + total.toFixed(2) + " mb). This is one-time operation and can take several minutes ...");
+						console.log("Downloading dynamodb local (Size " + total.toFixed(2) + " mb). This is one-time operation and can take several minutes ...");
                         if (200 != redirectResponse.statusCode) {
                             reject(new Error('Error getting DynamoDb local latest tar.gz location ' + response.headers.location + ': ' + redirectResponse.statusCode));
                         }
@@ -33,6 +34,7 @@ let download = function (source, destination) {
                                 path: destination
                             }))
                             .on('end', function () {
+								spinner.stop(true);
                                 console.log("Installation complete ...");
                                 resolve();
                             })
@@ -40,7 +42,7 @@ let download = function (source, destination) {
                                 reject(err);
                             }).on("data", function (chunk) {
                                 cur += chunk.length;
-                                process.stdout.write("Downloading " + (100.0 * cur / len).toFixed(2) + "% \r");
+								//process.stdout.write("Downloading " + (100.0 * cur / len).toFixed(2) + "% \r");
                             });
                     })
                     .on('error', function (e) {
@@ -53,13 +55,14 @@ let download = function (source, destination) {
     });
 };
 
-let setup = function (dbPath, downloadPath, jar) {
-    return new BbPromise(function (resolve, reject) {
+let setup = function (dbPath, downloadPath, jar, spinner) {
+	return new BbPromise(function (resolve, reject) {
         try {
             if (fs.existsSync(path.join(dbPath, jar))) {
+				spinner.stop(true);
                 resolve(true);
             } else {
-                download(downloadPath, dbPath).then(resolve, reject);
+                download(downloadPath, dbPath, spinner).then(resolve, reject);
             }
         } catch (e) {}
     });

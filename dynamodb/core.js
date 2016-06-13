@@ -28,7 +28,7 @@ let runningProcesses = {},
          * @param options
          * @returns {Promise.<ChildProcess>}
          */
-        start: function (options) {
+        start: function (options, spinner) {
             return new BbPromise(function (resolve, reject) {
                 /* Dynamodb local documentation http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html */
                 let additionalArgs = [];
@@ -54,8 +54,7 @@ let runningProcesses = {},
                 if (options.help) {
                     additionalArgs.push('-help');
                 }
-
-                installer.setup(DB_PATH, DOWNLOAD_PATH, JAR)
+				installer.setup(DB_PATH, DOWNLOAD_PATH, JAR, spinner)
                     .then(function () {
                         let args = [
                         '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', options.port
