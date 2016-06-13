@@ -29,7 +29,7 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 ## Starting Dynamodb Local
 
-In your project root run:
+In your project root run (Note: Run this command first before any other command, since it will download the dynamodb local during the first run):
 `sls dynamodb start`
 
 DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
@@ -47,7 +47,7 @@ All CLI options are optional:
 --create                  -c  After starting dynamodb local, create dynamodb tables and run seeds. Check the "Manage tables and seeds" section for more information.
 ```
 
-All the above options can be added to s-function.json to set default configuration: e.g
+All the above options can be added to s-project.json to set default configuration: e.g
 
 ```json
 "custom": {
@@ -128,10 +128,6 @@ new AWS.DynamoDB({
 Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local
 
 Note: Default port: 8000 and if you change the port, change it accordingly in usage
-
-## Coming up
-
-* Allow to create tables & run seeds remotely with a simple set of commands.
 
 ## Links
 
