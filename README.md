@@ -47,7 +47,7 @@ All CLI options are optional:
 --create                  -c  After starting dynamodb local, create dynamodb tables and run seeds. Check the "Manage tables and seeds" section for more information.
 ```
 
-All the above options can be added to s-function.json to set default configuration: e.g
+All the above options can be added to s-project.json to set default configuration: e.g
 
 ```json
 "custom": {

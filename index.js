@@ -23,8 +23,8 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          */
         registerActions() {
 
-            S.addAction(this._tables.bind(this), {
-                handler: 'table',
+            S.addAction(this.table.bind(this), {
+                handler: 'dynamodbTable',
                 description: 'New dynamodb table template',
                 context: 'dynamodb',
                 contextAction: 'table',
@@ -38,14 +38,14 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                     description: 'Create dynamodb tables and run seeds'
         }]
             });
-            S.addAction(this._removeDynamodb.bind(this), {
-                handler: 'remove',
+            S.addAction(this.remove.bind(this), {
+                handler: 'dynamodbRemove',
                 description: 'Remove dynamodb local database. This is needed if the installed version is currupted or needs to be upgraded.',
                 context: 'dynamodb',
                 contextAction: 'remove'
             });
-            S.addAction(this._startDynamodb.bind(this), {
-                handler: 'start',
+            S.addAction(this.start.bind(this), {
+                handler: 'dynamodbStart',
                 description: 'Start dynamodb local database',
                 context: 'dynamodb',
                 contextAction: 'start',
@@ -95,43 +95,45 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
          * - You can also access other Project-specific data @ this.S Again, if you mess with data on this object, it could break everything, so make sure you know what you're doing ;)
          */
 
-        _removeDynamodb() {
+        remove() {
             return dynamodb.remove();
         }
 
-        _tables(evt) {
-            let options = evt.options,
-                config = S.getProject().custom.dynamodb,
-                table = config && config.table || {},
-                rootPath = S.getProject().getRootPath(),
-                tablesPath = rootPath + '/' + (table.dir || 'dynamodb'),
-                suffix = table.suffix || '',
-                prefix = table.prefix || '';
+        table(evt) {
+            return new BbPromise(function (resolve, reject) {
+                let options = evt.options,
+                    config = S.getProject().custom.dynamodb,
+                    table = config && config.table || {},
+                    rootPath = S.getProject().getRootPath(),
+                    tablesPath = rootPath + '/' + (table.dir || 'dynamodb'),
+                    suffix = table.suffix || '',
+                    prefix = table.prefix || '';
 
-            if (options.new) {
-                return tables.newTemplate(options.new, tablesPath);
-            } else if (options.create) {
-                return tables.create(tablesPath, {
-                    prefix: prefix,
-                    suffix: suffix
-                });
-            }
+                if (options.new) {
+                    tables.newTemplate(options.new, tablesPath).then(resolve, reject);
+                } else if (options.create) {
+                    tables.create(tablesPath, {
+                        prefix: prefix,
+                        suffix: suffix
+                    }).then(resolve, reject);
+                }
+            });
         }
 
-        _startDynamodb(evt) {
-            var self = this,
-                config = S.getProject().custom.dynamodb;
-            let options = _.merge({
-                    sharedDb: evt.options.sharedDb || true
-                },
-                evt.options,
-                config && config.start
-            );
+        start(evt) {
+            let self = this;
             return new BbPromise(function (resolve, reject) {
+                let config = S.getProject().custom.dynamodb,
+                    options = _.merge({
+                            sharedDb: evt.options.sharedDb || true
+                        },
+                        evt.options,
+                        config && config.start
+                    );
                 if (options.create) {
                     dynamodb.start(options).then(function () {
                         console.log(""); // seperator
-                        self._tables(evt).then(resolve, reject);
+                        self.table(evt).then(resolve, reject);
                     });
                 } else {
                     dynamodb.start(options).then(resolve, reject);
