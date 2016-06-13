@@ -127,10 +127,6 @@ Open a browser and go to the url http://localhost:8000/shell to access the web s
 
 Note: Default port: 8000 and if you change the port, change it accordingly in usage
 
-## Coming up
-
-* Allow to create tables & run seeds remotely with a simple set of commands.
-
 ## Links
 
 * [Dynamodb local documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
