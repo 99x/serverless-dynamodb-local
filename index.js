@@ -83,7 +83,7 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     shortcut: 'c',
                     description: 'After starting dynamodb local, create dynamodb tables and run seeds'
                 }, {
-                    option: 'downloadDirectory',
+                    option: 'downloadFrom',
                     shortcut: 'D',
                     description: 'Specify the path where you want to download dynamodb. Default path is serverless-dynamodb-local/dynamodb/bin'
                 }]
@@ -132,7 +132,7 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     options = _.merge({
                             sharedDb: evt.options.sharedDb || true
                         },
-                        evt.options,
+                        evt.options, { downloadFrom: config.downloadFrom },
                         config && config.start
                     ),
                     _spinner = SCli.spinner();
