@@ -6,6 +6,7 @@ const _ = require('lodash'),
     dynamodb = require('./dynamodb/core');
 
 module.exports = function (S) { // Always pass in the ServerlessPlugin Class
+	const SCli = require(S.getServerlessPath('utils/cli'));
 
     class DynamodbLocal extends S.classes.Plugin {
 
@@ -129,13 +130,15 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                         },
                         evt.options,
                         config && config.start
-                    );
+                    ),
+					_spinner = SCli.spinner();;
                 if (options.create) {
                     dynamodb.start(options).then(function () {
                         console.log(""); // seperator
                         self.table(evt).then(resolve, reject);
                     });
                 } else {
+					_spinner.start()
                     dynamodb.start(options).then(resolve, reject);
                 }
             });
