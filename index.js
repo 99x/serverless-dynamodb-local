@@ -131,15 +131,15 @@ module.exports = function (S) { // Always pass in the ServerlessPlugin Class
                         evt.options,
                         config && config.start
                     ),
-					_spinner = SCli.spinner();;
+		    _spinner = SCli.spinner();;
                 if (options.create) {
                     dynamodb.start(options).then(function () {
                         console.log(""); // seperator
                         self.table(evt).then(resolve, reject);
                     });
                 } else {
-					_spinner.start()
-                    dynamodb.start(options).then(resolve, reject);
+		    _spinner.start()
+                    dynamodb.start(options, _spinner).then(resolve, reject);
                 }
             });
         }
