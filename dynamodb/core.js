@@ -11,9 +11,9 @@ const DOWNLOAD_PATH = 'http://dynamodb-local.s3-website-us-west-2.amazonaws.com/
     DB_PATH = path.dirname(__filename) + '/bin';
 
 let runningProcesses = {},
-    writeFile = function (name, data) {
-        return new BbPromise(function (resolve, reject) {
-            fs.writeFile(name, JSON.stringify(data, null, 4), function (err) {
+    writeFile = function(name, data) {
+        return new BbPromise(function(resolve, reject) {
+            fs.writeFile(name, JSON.stringify(data, null, 4), function(err) {
                 if (err) {
                     reject(err);
                 } else {
@@ -28,13 +28,14 @@ let runningProcesses = {},
          * @param options
          * @returns {Promise.<ChildProcess>}
          */
-        start: function (options, spinner) {
-            return new BbPromise(function (resolve, reject) {
+        start: function(options, spinner) {
+            return new BbPromise(function(resolve, reject) {
                 /* Dynamodb local documentation http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html */
-                let additionalArgs = [];
+                let additionalArgs = [],
+                    downloadFrom = options.downloadFrom || DB_PATH;
                 options.port = options.port || 8000;
 
-                if (options.dbPath) { //
+                if (options.dbPath) { 
                     additionalArgs.push('-dbPath', options.dbPath);
                 } else {
                     additionalArgs.push('-inMemory');
@@ -54,14 +55,14 @@ let runningProcesses = {},
                 if (options.help) {
                     additionalArgs.push('-help');
                 }
-				installer.setup(DB_PATH, DOWNLOAD_PATH, JAR, spinner)
-                    .then(function () {
+                installer.setup(downloadFrom, DOWNLOAD_PATH, JAR, spinner)
+                    .then(function() {
                         let args = [
-                        '-Djava.library.path=./DynamoDBLocal_lib', '-jar', JAR, '-port', options.port
-                    ];
+                            '-Djava.library.path=' + downloadFrom + '/DynamoDBLocal_lib', '-jar', JAR, '-port', options.port
+                        ];
                         args = args.concat(additionalArgs);
                         let child = spawn('java', args, {
-                            cwd: DB_PATH,
+                            cwd: downloadFrom,
                             env: process.env,
                             stdio: ['pipe', 'pipe', process.stderr]
                         });
@@ -69,11 +70,11 @@ let runningProcesses = {},
                             throw new Error('Unable to start DynamoDB Local process!');
                         }
                         child
-                            .on('error', function (err) {
+                            .on('error', function(err) {
                                 console.log('DynamoDB local start error', err);
                                 throw new Error('DynamoDB Local failed to start!');
                             })
-                            .on('close', function (code) {
+                            .on('close', function(code) {
                                 if (code !== null && code !== 0) {
                                     console.log('DynamoDB Local failed to start with code', code);
                                 }
@@ -82,20 +83,25 @@ let runningProcesses = {},
                         console.log('Started: Dynamodb local(pid=' + child.pid + ') ', 'via java', args.join(' '));
                         console.log('Visit: http://localhost:' + options.port + '/shell');
                         writeFile(DB_PATH + '/options.json', options).then(resolve, reject);
+                        writeFile(DB_PATH + '/path.json', downloadFrom);
                     });
             });
         },
-        stop: function (port) {
+        stop: function(port) {
             if (runningProcesses[port]) {
                 runningProcesses[port].kill('SIGKILL');
                 delete runningProcesses[port];
             }
         },
-        restart: function (port, db) {
+        restart: function(port, db) {
             this.stop(port);
             this.start(port, db);
         },
-        remove: installer.remove.bind(null, DB_PATH)
+        remove: function() {
+            let downloadedFrom = JSON.parse(fs.readFileSync(DB_PATH + '/path.json', 'utf8'));
+            console.log("removing dynamodb from ", downloadedFrom);
+            installer.remove(downloadedFrom);
+        }
     };
 
 module.exports = dynamodb;
