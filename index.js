@@ -108,14 +108,14 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
          */
 
         remove() {
-            //return dynamodb.remove();
-            return dynamodbLocal.remove(function(){});
+            return new BbPromise(function(resolve, reject) {
+                dynamodbLocal.remove(resolve);
+            });
         }
 
         install() {
-            //return dynamodb.remove();
-            return dynamodbLocal.install(function(){
-
+            return new BbPromise(function(resolve, reject) {
+                dynamodbLocal.install(resolve);
             });
         }
 
