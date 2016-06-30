@@ -3,7 +3,6 @@
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
     tables = require('./tables/core'),
-    dynamodb = require('./dynamodb/core'),
     dynamodbLocal = require('dynamodb-localhost');
 
 module.exports = function(S) { // Always pass in the ServerlessPlugin Class
