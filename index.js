@@ -109,9 +109,7 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
 
         remove() {
             //return dynamodb.remove();
-            return dynamodbLocal.remove(function(){
-                console.log("hello");
-            });
+            return dynamodbLocal.remove(function(){});
         }
 
         install() {
@@ -153,14 +151,13 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                         config && config.start
                     );
                 if (options.create) {
-                    dynamodbLocal.start(options)//.then(function() {
-                    console.log("started1"); // seperator
-                    self.table(evt) //.then(resolve, reject);
+                    dynamodbLocal.start(options);
+                    console.log(""); // seperator
+                    self.table(evt);
                     resolve();
-                    //});
                 } else {
-                    dynamodbLocal.start(options)//.then(resolve, reject);
-                    console.log("started2"); // seperator
+                    dynamodbLocal.start(options);
+                    console.log("");
                     resolve();
                 }
             });
