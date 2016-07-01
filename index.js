@@ -3,7 +3,7 @@
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
     tables = require('./tables/core'),
-    dynamodb = require('./dynamodb/core');
+    dynamodbLocal = require('dynamodb-localhost');
 
 module.exports = function(S) { // Always pass in the ServerlessPlugin Class
     const SCli = require(S.getServerlessPath('utils/cli'));
@@ -44,6 +44,12 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                 description: 'Remove dynamodb local database. This is needed if the installed version is currupted or needs to be upgraded.',
                 context: 'dynamodb',
                 contextAction: 'remove'
+            });
+            S.addAction(this.install.bind(this), {
+                handler: 'dynamodbInstall',
+                description: 'Install dynamodb local database. This is a single time operation.',
+                context: 'dynamodb',
+                contextAction: 'install'
             });
             S.addAction(this.start.bind(this), {
                 handler: 'dynamodbStart',
@@ -101,7 +107,15 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
          */
 
         remove() {
-            return dynamodb.remove();
+            return new BbPromise(function(resolve, reject) {
+                dynamodbLocal.remove(resolve);
+            });
+        }
+
+        install() {
+            return new BbPromise(function(resolve, reject) {
+                dynamodbLocal.install(resolve);
+            });
         }
 
         table(evt) {
@@ -132,18 +146,18 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     options = _.merge({
                             sharedDb: evt.options.sharedDb || true
                         },
-                        evt.options, { downloadFrom: config.downloadFrom },
+                        evt.options,
                         config && config.start
-                    ),
-                    _spinner = SCli.spinner();
+                    );
                 if (options.create) {
-                    dynamodb.start(options).then(function() {
-                        console.log(""); // seperator
-                        self.table(evt).then(resolve, reject);
-                    });
+                    dynamodbLocal.start(options);
+                    console.log(""); // seperator
+                    self.table(evt);
+                    resolve();
                 } else {
-                    _spinner.start();
-                    dynamodb.start(options, _spinner).then(resolve, reject);
+                    dynamodbLocal.start(options);
+                    console.log("");
+                    resolve();
                 }
             });
         }
