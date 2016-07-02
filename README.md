@@ -163,3 +163,7 @@ sls dynamodb start
 ## Credits
 
 Bunch of thanks to doapp-ryanp who started [dynamodb-local](https://github.com/doapp-ryanp/dynamodb-local) project
+
+## License
+
+  [MIT](LICENSE)
