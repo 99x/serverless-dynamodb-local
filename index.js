@@ -3,6 +3,8 @@
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
     tables = require('./tables/core'),
+    dm = require('dynamodb-migrations'),
+    AWS = require('aws-sdk'),
     dynamodbLocal = require('dynamodb-localhost');
 
 module.exports = function(S) { // Always pass in the ServerlessPlugin Class
@@ -125,16 +127,17 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     table = config && config.table || {},
                     rootPath = S.getProject().getRootPath(),
                     tablesPath = rootPath + '/' + (table.dir || 'dynamodb'),
+                    dbPort = config && config.start && config.start.port || 8000,
+                    dbOptions = { region: 'localhost', endpoint: 'http://localhost:' + dbPort },
+                    dynamodb = { raw: new AWS.DynamoDB(dbOptions), doc: new AWS.DynamoDB.DocumentClient(dbOptions) },
                     suffix = table.suffix || '',
                     prefix = table.prefix || '';
 
+                dm.init(dynamodb, tablesPath);
                 if (options.new) {
-                    tables.newTemplate(options.new, tablesPath).then(resolve, reject);
+                    dm.create(options.new).then(resolve, reject);
                 } else if (options.create) {
-                    tables.create(tablesPath, {
-                        prefix: prefix,
-                        suffix: suffix
-                    }).then(resolve, reject);
+                    dm.executeAll({ tablePrefix: prefix, tableSuffix: suffix }).then(resolve, reject);
                 }
             });
         }
