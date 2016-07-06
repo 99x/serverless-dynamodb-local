@@ -2,11 +2,11 @@
 
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
-    tables = require('./tables/core'),
+    dynamodbMigrations = require('dynamodb-migrations'),
+    AWS = require('aws-sdk'),
     dynamodbLocal = require('dynamodb-localhost');
 
-module.exports = function(S) { // Always pass in the ServerlessPlugin Class
-    const SCli = require(S.getServerlessPath('utils/cli'));
+module.exports = function (S) {
 
     class DynamodbLocal extends S.classes.Plugin {
 
@@ -24,19 +24,41 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
          */
         registerActions() {
 
-            S.addAction(this.table.bind(this), {
-                handler: 'dynamodbTable',
-                description: 'New dynamodb table template',
+            S.addAction(this.create.bind(this), {
+                handler: 'dynamodbCreate',
+                description: 'Create new migration template with the given name',
                 context: 'dynamodb',
-                contextAction: 'table',
+                contextAction: 'create',
                 options: [{
-                    option: 'new',
+                    option: 'name',
                     shortcut: 'n',
-                    description: 'Create a new table & seed template for the given table name, inside the directlry given in s-project.json.'
+                    description: 'Create a migration template inside the directlry given in s-project.json with the given name.'
+                }]
+            });
+            S.addAction(this.execute.bind(this), {
+                handler: 'dynamodbExecute',
+                description: 'Execute a migration template with the given name',
+                context: 'dynamodb',
+                contextAction: 'execute',
+                options: [{
+                    option: 'name',
+                    shortcut: 'n',
+                    description: 'Execute a migration template with the given name'
                 }, {
-                    option: 'create',
-                    shortcut: 'c',
-                    description: 'Create dynamodb tables and run seeds'
+                    option: 'remote',
+                    shortcut: 'r',
+                    description: 'Execute migration template in remote dynamodb given in s-project.json.'
+                }]
+            });
+            S.addAction(this.executeAll.bind(this), {
+                handler: 'dynamodbExecuteAll',
+                description: 'Execute all migration templates',
+                context: 'dynamodb',
+                contextAction: 'executeAll',
+                options: [{
+                    option: 'remote',
+                    shortcut: 'r',
+                    description: 'Execute all migration templates in remote dynamodb given in s-project.json.'
                 }]
             });
             S.addAction(this.remove.bind(this), {
@@ -62,11 +84,11 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     description: 'The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000'
                 }, {
                     option: 'cors',
-                    shortcut: 'r',
+                    shortcut: 'c',
                     description: 'Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.'
                 }, {
                     option: 'inMemory',
-                    shortcut: 'm',
+                    shortcut: 'i',
                     description: 'DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.'
                 }, {
                     option: 'dbPath',
@@ -85,17 +107,43 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                     shortcut: 'o',
                     description: 'Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.'
                 }, {
-                    option: 'create',
-                    shortcut: 'c',
-                    description: 'After starting dynamodb local, create dynamodb tables and run seeds'
-                }, {
-                    option: 'downloadFrom',
-                    shortcut: 'D',
-                    description: 'Specify the path where you want to download dynamodb. Default path is serverless-dynamodb-local/dynamodb/bin'
+                    option: 'migration',
+                    shortcut: 'm',
+                    description: 'After starting dynamodb local, run dynamodb migrations'
                 }]
             });
 
             return BbPromise.resolve();
+        }
+
+        dynamodbOptions(remote) {
+            let config = S.getProject().custom.dynamodb || {},
+                region = config.migration.region || 'localhost',
+                port = config.start && config.start.port || 8000,
+                endpoint = remote ? config.migration.endpoint : 'http://localhost:' + port,
+                dynamoOptions = {
+                    region: region,
+                    endpoint: endpoint
+                };
+            return {
+                raw: new AWS.DynamoDB(dynamoOptions),
+                doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
+            };
+        }
+
+        tableOptions() {
+            let config = S.getProject().custom.dynamodb,
+                migration = config && config.migration || {},
+                rootPath = S.getProject().getRootPath(),
+                path = rootPath + '/' + (migration.dir || 'dynamodb'),
+                suffix = migration.table_suffix || '',
+                prefix = migration.table_prefix || '';
+
+            return {
+                suffix: suffix,
+                prefix: prefix,
+                path: path
+            };
         }
 
         /**
@@ -107,41 +155,59 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
          */
 
         remove() {
-            return new BbPromise(function(resolve, reject) {
+            return new BbPromise(function (resolve) {
                 dynamodbLocal.remove(resolve);
             });
         }
 
         install() {
-            return new BbPromise(function(resolve, reject) {
+            return new BbPromise(function (resolve) {
                 dynamodbLocal.install(resolve);
             });
         }
 
-        table(evt) {
-            return new BbPromise(function(resolve, reject) {
-                let options = evt.options,
-                    config = S.getProject().custom.dynamodb,
-                    table = config && config.table || {},
-                    rootPath = S.getProject().getRootPath(),
-                    tablesPath = rootPath + '/' + (table.dir || 'dynamodb'),
-                    suffix = table.suffix || '',
-                    prefix = table.prefix || '';
+        execute(evt) {
+            let self = this,
+                options = evt.options;
+            return new BbPromise(function (resolve, reject) {
+                let dynamodb = self.dynamodbOptions(options.remote),
+                    tableOptions = self.tableOptions();
+                dynamodbMigrations.init(dynamodb, tableOptions.path);
+                dynamodbMigrations.execute(options.name, {
+                    tablePrefix: tableOptions.prefix,
+                    tableSuffix: tableOptions.suffix
+                }).then(resolve, reject);
+            });
+        }
 
-                if (options.new) {
-                    tables.newTemplate(options.new, tablesPath).then(resolve, reject);
-                } else if (options.create) {
-                    tables.create(tablesPath, {
-                        prefix: prefix,
-                        suffix: suffix
-                    }).then(resolve, reject);
-                }
+        executeAll(evt) {
+            let self = this,
+                options = evt.options;
+            return new BbPromise(function (resolve, reject) {
+                let dynamodb = self.dynamodbOptions(options.remote),
+                    tableOptions = self.tableOptions();
+                dynamodbMigrations.init(dynamodb, tableOptions.path);
+                dynamodbMigrations.executeAll({
+                    tablePrefix: tableOptions.prefix,
+                    tableSuffix: tableOptions.suffix
+                }).then(resolve, reject);
+            });
+        }
+
+        create(evt) {
+            let self = this,
+                options = evt.options;
+            return new BbPromise(function (resolve, reject) {
+                let dynamodb = self.dynamodbOptions(),
+                    tableOptions = self.tableOptions();
+                dynamodbMigrations.init(dynamodb, tableOptions.path);
+                dynamodbMigrations.create(options.name).then(resolve, reject);
             });
         }
 
         start(evt) {
             let self = this;
-            return new BbPromise(function(resolve, reject) {
+            return new BbPromise(function (resolve) {
                 let config = S.getProject().custom.dynamodb,
                     options = _.merge({
                             sharedDb: evt.options.sharedDb || true
@@ -149,10 +215,10 @@ module.exports = function(S) { // Always pass in the ServerlessPlugin Class
                         evt.options,
                         config && config.start
                     );
-                if (options.create) {
+                if (options.migration) {
                     dynamodbLocal.start(options);
                     console.log(""); // seperator
-                    self.table(evt);
+                    self.executeAll(evt);
                     resolve();
                 } else {
                     dynamodbLocal.start(options);
