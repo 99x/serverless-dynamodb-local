@@ -17,7 +17,7 @@ You can use this with ['serverless-offline'](https://github.com/dherault/serverl
 
 * Automatically downloads dynamodb local
 * Allow to specify all the supported parameters in dynamodb local (e.g port, inMemory, sharedDb)
-* Provide you with a set of serverless commands for dynamodb local (e.g seeds, tables)
+* Provide you with a set of serverless commands for dynamodb migrations (e.g seeds, tables)
 
 ## Installation
 
@@ -29,7 +29,10 @@ Like this: `"plugins": ["serverless-dynamodb-local"]`
 
 ## Starting Dynamodb Local
 
-In your project root run (Note: Run this command first before any other command, since it will download the dynamodb local during the first run):
+In your project root run (Note: Run this command first before any other command, since it will download the dynamodb local):
+`sls dynamodb install`
+
+In your project root run to start dynamodb instance:
 `sls dynamodb start`
 
 DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window
@@ -38,13 +41,13 @@ All CLI options are optional:
 
 ```
 --port                    -p  Port to listen on. Default: 8000
---cors                    -r  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
---inMemory                -m  DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.
+--cors                    -c  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
+--inMemory                -i  DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.
 --dbPath                  -d  The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.
 --sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
---create                  -c  After starting dynamodb local, create dynamodb tables and run seeds. Check the "Manage tables and seeds" section for more information.
+--migration               -m  After starting dynamodb local, run dynamodb migrations.
 ```
 
 All the above options can be added to s-project.json to set default configuration: e.g
@@ -55,7 +58,7 @@ All the above options can be added to s-project.json to set default configuratio
     "start": {
       "port": "8000",
       "inMemory": true,
-      "create": true
+      "migration": true
     }
   }
 }
@@ -64,29 +67,100 @@ All the above options can be added to s-project.json to set default configuratio
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
 
-## Manage tables and seeds
+## Manage migrations
 
-Start dynamodb local instance in another window before running the following commands. To store your dynamodb table creation and seed configurations do the following configuration (If not specified default directory <project-root>/dynamodb)
+Start dynamodb local instance in another window before running the following commands. To store your dynamodb migration templates do the following configuration (If not specified default directory <project-root>/dynamodb is used)
 
 ```json
 "custom": {
   "dynamodb": {
-    "table": {
+    "migration": {
       "dir": "dynamodbTables",
-      "prefix": "",
-      "suffix": ""
+      "table_prefix": "",
+      "table_suffix": ""
     }
   }
 }
 ```
 
-To create table & seed template in your project root, run:
-`sls dynamodb table -n <your-table-name>`
+To create new migration template with the given name, run:
+`sls dynamodb create -n <your-table-name>`
+
+To execute a migration template with the given name, run:
+`sls dynamodb execute -n <your-table-name>`
+
+To execute all migration templates, run:
+`sls dynamodb executeAll`
+
+## Migration Template
+
+```json
+{
+    "Table": {
+        "TableName": "TableName",
+        "KeySchema": [{
+            "AttributeName": "attr_1",
+            "KeyType": "HASH"
+		}, {
+            "AttributeName": "attr_2",
+            "KeyType": "RANGE"
+		}],
+        "AttributeDefinitions": [{
+            "AttributeName": "attr_1",
+            "AttributeType": "S"
+		}, {
+            "AttributeName": "attr_2",
+            "AttributeType": "S"
+		}],
+        "LocalSecondaryIndexes": [{
+            "IndexName": "local_index_1",
+            "KeySchema": [{
+                "AttributeName": "attr_1",
+                "KeyType": "HASH"
+			}, {
+                "AttributeName": "attr_2",
+                "KeyType": "RANGE"
+			}],
+            "Projection": {
+                "NonKeyAttributes": ["attr_1", "attr_2"],
+                "ProjectionType": "INCLUDE"
+            }
+		}],
+        "GlobalSecondaryIndexes": [{
+            "IndexName": "global_index_1",
+            "KeySchema": [{
+                "AttributeName": "attr_1",
+                "KeyType": "HASH"
+			}, {
+                "AttributeName": "attr_2",
+                "KeyType": "RANGE"
+			}],
+            "Projection": {
+                "NonKeyAttributes": ["attr_1", "attr_2"],
+                "ProjectionType": "INCLUDE"
+            },
+            "ProvisionedThroughput": {
+                "ReadCapacityUnits": 1,
+                "WriteCapacityUnits": 1
+            }
+		}],
+        "ProvisionedThroughput": {
+            "ReadCapacityUnits": 1,
+            "WriteCapacityUnits": 1
+        }
+    },
+    "Seeds": [{
+        "attr_1": "attr_1_value",
+        "attr_2": "attr_2_value"
+    }]
+}
+```
+Before modifying the migration template, refer the Dynamodb Client SDK and Dynamodb Document Client SDK links.
 
 This will create a template json inside configured directory. Open the file and edit the table schema and data.
 
 References
-* Defining table schema (Dynamodb SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property
+* Defining table schema (Dynamodb Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property
 * Defining seeds (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
 
 To create table & run the seeds in your project root, run:
@@ -94,13 +168,13 @@ To create table & run the seeds in your project root, run:
 
 If you need to prefix_<your-table-name>_suffix, you can configure the values accordingly. This is usefull when you have multiple stages which needs multiple database tables
 
-Optionally if you want to create the tables and run the seeds on dynamodb starts, use the argument -c or add the "create": true inside s-project.json as shown below
+Optionally if you want to execute all migrations on dynamodb starts, use the argument -m or add the "migration": true inside s-project.json as shown below
 
 ```json
 "custom": {
   "dynamodb": {
     "start": {
-      "create": true
+      "migration": true
     }
   }
 }
@@ -159,10 +233,6 @@ You can also contribute by writing. Feel free to let us know if you want to publ
 sls dynamodb start
 ```
 * Go to dynamodb local [shell](http://localhost:8000/shell) in your browser and you should be able to see use the web shell
-
-## Credits
-
-Bunch of thanks to doapp-ryanp who started [dynamodb-local](https://github.com/doapp-ryanp/dynamodb-local) project
 
 ## License
 
