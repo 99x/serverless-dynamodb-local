@@ -67,7 +67,7 @@ All the above options can be added to s-project.json to set default configuratio
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
 
-## Manage migrations
+## Manage Migrations
 
 Start dynamodb local instance in another window before running the following commands. To store your dynamodb migration templates do the following configuration (If not specified default directory <project-root>/dynamodb is used)
 
@@ -84,13 +84,16 @@ Start dynamodb local instance in another window before running the following com
 ```
 
 To create new migration template with the given name, run:
-`sls dynamodb create -n <your-table-name>`
+`sls dynamodb create -n <migration-name>`
 
 To execute a migration template with the given name, run:
-`sls dynamodb execute -n <your-table-name>`
+`sls dynamodb execute -n <migration-file-name>`
 
 To execute all migration templates, run:
 `sls dynamodb executeAll`
+
+Note: Optionally to execute/executeAll migrations on remote dynamodb, use -r <region> and -s <stage> parameters
+'sls dynamodb executeAll -r us-west-1 -s dev'
 
 ## Migration Template
 
@@ -163,9 +166,6 @@ References
 * Defining table schema (Dynamodb Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property
 * Defining seeds (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property
 
-To create table & run the seeds in your project root, run:
-`sls dynamodb table -c`
-
 If you need to prefix_<your-table-name>_suffix, you can configure the values accordingly. This is usefull when you have multiple stages which needs multiple database tables
 
 Optionally if you want to execute all migrations on dynamodb starts, use the argument -m or add the "migration": true inside s-project.json as shown below
@@ -180,7 +180,7 @@ Optionally if you want to execute all migrations on dynamodb starts, use the arg
 }
 ```
 
-## Accessing dynamodb local from your code
+## Using in code
 
 You need to add the following parameters to the AWS SDK dynamodb constructor
 

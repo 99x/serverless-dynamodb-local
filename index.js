@@ -45,9 +45,13 @@ module.exports = function (S) {
                     shortcut: 'n',
                     description: 'Execute a migration template with the given name'
                 }, {
-                    option: 'remote',
+                    option: 'region',
                     shortcut: 'r',
-                    description: 'Execute migration template in remote dynamodb given in s-project.json.'
+                    description: 'Region that dynamodb should be remotely executed'
+                }, {
+                    option: 'stage',
+                    shortcut: 's',
+                    description: 'Stage that dynamodb should be remotely executed'
                 }]
             });
             S.addAction(this.executeAll.bind(this), {
@@ -56,9 +60,13 @@ module.exports = function (S) {
                 context: 'dynamodb',
                 contextAction: 'executeAll',
                 options: [{
-                    option: 'remote',
+                    option: 'region',
                     shortcut: 'r',
-                    description: 'Execute all migration templates in remote dynamodb given in s-project.json.'
+                    description: 'Region that dynamodb should be remotely executed'
+                }, {
+                    option: 'stage',
+                    shortcut: 's',
+                    description: 'Stage that dynamodb should be remotely executed'
                 }]
             });
             S.addAction(this.remove.bind(this), {
@@ -116,15 +124,25 @@ module.exports = function (S) {
             return BbPromise.resolve();
         }
 
-        dynamodbOptions(remote) {
-            let config = S.getProject().custom.dynamodb || {},
-                region = config.migration.region || 'localhost',
+        dynamodbOptions(stage, region) {
+            let credentials, config = S.getProject().custom.dynamodb || {},
                 port = config.start && config.start.port || 8000,
-                endpoint = remote ? config.migration.endpoint : 'http://localhost:' + port,
-                dynamoOptions = {
+                dynamoOptions;
+            if (stage && region) {
+                credentials = S.getProvider('aws').getCredentials(stage, region);
+                AWS.config.update({
                     region: region,
-                    endpoint: endpoint
+                    accessKeyId: credentials.accessKeyId,
+                    secretAccessKey: credentials.secretAccessKey,
+                    sessionToken: credentials.sessionToken
+                });
+            } else {
+                dynamoOptions = {
+                    endpoint: 'http://localhost:' + port,
+                    region: 'localhost'
                 };
+            }
+
             return {
                 raw: new AWS.DynamoDB(dynamoOptions),
                 doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
@@ -170,7 +188,7 @@ module.exports = function (S) {
             let self = this,
                 options = evt.options;
             return new BbPromise(function (resolve, reject) {
-                let dynamodb = self.dynamodbOptions(options.remote),
+                let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions();
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
                 dynamodbMigrations.execute(options.name, {
@@ -184,7 +202,7 @@ module.exports = function (S) {
             let self = this,
                 options = evt.options;
             return new BbPromise(function (resolve, reject) {
-                let dynamodb = self.dynamodbOptions(options.remote),
+                let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions();
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
                 dynamodbMigrations.executeAll({
