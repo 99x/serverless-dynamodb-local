@@ -42,12 +42,14 @@ e.g `"plugins": ["serverless-dynamodb-local"]`
 `sls dynamodb executeAll -r us-west-1 -s dev`
 
 Note: Read the detailed section for more information on advanced options and configurations
+Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local
 
-## Install: `sls dynamodb install`
+## Install: sls dynamodb install
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
+Note: This is useful if the sls dynamodb install failed in between to completely remove and install a new copy of DynamoDB local.
 
-## Start: `sls dynamodb start`
+## Start: sls dynamodb start
 All CLI options are optional:
 
 ```
@@ -75,7 +77,7 @@ All the above options can be added to s-project.json to set default configuratio
 }
 ```
 
-##  Create/Execute DynamoDB (Migrations)
+##  Migrations: sls dynamodb create/execute/executeAll
 ### Configurations
 In `s-project.json` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
 ```json
@@ -180,10 +182,7 @@ new AWS.DynamoDB({
     region: 'localhost',
     endpoint: 'http://localhost:8000'
 })
-
 ```
-Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local
-Note: Default port: 8000 and if you change the port, change it accordingly in usage
 
 ## Links
 * [Dynamodb local documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
