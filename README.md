@@ -41,8 +41,7 @@ e.g `"plugins": ["serverless-dynamodb-local"]`
 * Execute migration(s) in remote DynamoDB use additional parameters(region and stage) after execute/executeAll. e.g.
 `sls dynamodb executeAll -r us-west-1 -s dev`
 
-Note: Read the detailed section for more information on advanced options and configurations
-Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local
+Note: Read the detailed section for more information on advanced options and configurations. Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local.
 
 ## Install: sls dynamodb install
 To remove the installed dynamodb local, run:
