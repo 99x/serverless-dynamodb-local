@@ -191,10 +191,7 @@ module.exports = function (S) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions();
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
-                dynamodbMigrations.execute(options.name, {
-                    tablePrefix: tableOptions.prefix,
-                    tableSuffix: tableOptions.suffix
-                }).then(resolve, reject);
+                dynamodbMigrations.execute(options.name, tableOptions).then(resolve, reject);
             });
         }
 
@@ -205,10 +202,7 @@ module.exports = function (S) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions();
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
-                dynamodbMigrations.executeAll({
-                    tablePrefix: tableOptions.prefix,
-                    tableSuffix: tableOptions.suffix
-                }).then(resolve, reject);
+                dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
             });
         }
 
