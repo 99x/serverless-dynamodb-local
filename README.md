@@ -170,6 +170,9 @@ You need to add the following parameters to the AWS NODE SDK dynamodb constructo
 
 e.g. for dynamodb document client sdk
 ```
+var AWS = require('aws-sdk'),
+```
+```
 new AWS.DynamoDB.DocumentClient({
     region: 'localhost',
     endpoint: 'http://localhost:8000'
