@@ -170,7 +170,7 @@ You need to add the following parameters to the AWS NODE SDK dynamodb constructo
 
 e.g. for dynamodb document client sdk
 ```
-var AWS = require('aws-sdk'),
+var AWS = require('aws-sdk');
 ```
 ```
 new AWS.DynamoDB.DocumentClient({
@@ -185,6 +185,9 @@ new AWS.DynamoDB({
     endpoint: 'http://localhost:8000'
 })
 ```
+
+### Using with serverless-offline plugin
+When using this plugin with serverless-offline, it is difficult to use above syntax since the code should use DynamoDB Local for development, and use DynamoDB Online after provisioning in AWS. Therefore we suggest you to use [serverless-dynamodb-client](https://github.com/99xt/serverless-dynamodb-client) plugin in your code.
 
 ## Links
 * [Dynamodb local documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
