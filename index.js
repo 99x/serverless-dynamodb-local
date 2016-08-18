@@ -52,7 +52,16 @@ module.exports = function (S) {
                     option: 'stage',
                     shortcut: 's',
                     description: 'Stage that dynamodb should be remotely executed'
-                }]
+                }, {
+                    option: 'table_prefix',
+                    shortcut: 'p',
+                    description: 'Table name prefix'
+                }, {
+                    option: 'table_suffix',
+                    shortcut: 'x',
+                    description: 'Table name suffix'
+                }
+                ]
             });
             S.addAction(this.executeAll.bind(this), {
                 handler: 'dynamodbExecuteAll',
@@ -67,6 +76,14 @@ module.exports = function (S) {
                     option: 'stage',
                     shortcut: 's',
                     description: 'Stage that dynamodb should be remotely executed'
+                }, {
+                    option: 'table_prefix',
+                    shortcut: 'p',
+                    description: 'Table name prefix'
+                }, {
+                    option: 'table_suffix',
+                    shortcut: 'x',
+                    description: 'Table name suffix'
                 }]
             });
             S.addAction(this.remove.bind(this), {
@@ -149,13 +166,13 @@ module.exports = function (S) {
             };
         }
 
-        tableOptions() {
+        tableOptions(table_prefix, table_suffix) {
             let config = S.getProject().custom.dynamodb,
                 migration = config && config.migration || {},
                 rootPath = S.getProject().getRootPath(),
                 path = rootPath + '/' + (migration.dir || 'dynamodb'),
-                suffix = migration.table_suffix || '',
-                prefix = migration.table_prefix || '';
+                suffix = table_suffix || migration.table_suffix || '',
+                prefix = table_prefix || migration.table_prefix || '';
 
             return {
                 suffix: suffix,
@@ -189,7 +206,7 @@ module.exports = function (S) {
                 options = evt.options;
             return new BbPromise(function (resolve, reject) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
-                    tableOptions = self.tableOptions();
+                    tableOptions = self.tableOptions(options.table_prefix, options.table_suffix);
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
                 dynamodbMigrations.execute(options.name, tableOptions).then(resolve, reject);
             });
@@ -200,7 +217,7 @@ module.exports = function (S) {
                 options = evt.options;
             return new BbPromise(function (resolve, reject) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
-                    tableOptions = self.tableOptions();
+                    tableOptions = self.tableOptions(options.table_prefix, options.table_suffix);
                 dynamodbMigrations.init(dynamodb, tableOptions.path);
                 dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
             });
