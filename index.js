@@ -54,12 +54,17 @@ module.exports = function (S) {
                     description: 'Stage that dynamodb should be remotely executed'
                 }, {
                     option: 'table_prefix',
-                    shortcut: 'p',
+                    shortcut: 't',
                     description: 'Table name prefix'
                 }, {
                     option: 'table_suffix',
                     shortcut: 'x',
                     description: 'Table name suffix'
+                },
+                {
+                    option: 'profile',
+                    shortcut: 'p',
+                    description: 'aws profile'
                 }
                 ]
             });
@@ -78,12 +83,17 @@ module.exports = function (S) {
                     description: 'Stage that dynamodb should be remotely executed'
                 }, {
                     option: 'table_prefix',
-                    shortcut: 'p',
+                    shortcut: 't',
                     description: 'Table name prefix'
                 }, {
                     option: 'table_suffix',
                     shortcut: 'x',
                     description: 'Table name suffix'
+                },
+                {
+                    option: 'profile',
+                    shortcut: 'p',
+                    description: 'aws profile'
                 }]
             });
             S.addAction(this.remove.bind(this), {
@@ -204,6 +214,10 @@ module.exports = function (S) {
         execute(evt) {
             let self = this,
                 options = evt.options;
+            if(options.profile) {
+              AWS.config.credentials =
+                new AWS.SharedIniFileCredentials({ profile: options.profile });
+            }
             return new BbPromise(function (resolve, reject) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions(options.table_prefix, options.table_suffix);
@@ -215,6 +229,11 @@ module.exports = function (S) {
         executeAll(evt) {
             let self = this,
                 options = evt.options;
+            if(options.profile) {
+              AWS.config.credentials =
+                new AWS.SharedIniFileCredentials({ profile: options.profile });
+            }
+
             return new BbPromise(function (resolve, reject) {
                 let dynamodb = self.dynamodbOptions(options.stage, options.region),
                     tableOptions = self.tableOptions(options.table_prefix, options.table_suffix);
