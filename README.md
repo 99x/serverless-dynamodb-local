@@ -76,7 +76,8 @@ All the above options can be added to s-project.json to set default configuratio
 }
 ```
 
-##  Migrations: sls dynamodb create/execute/executeAll
+##  Migrations: sls dynamodb <migration-command>
+Migration-Commands create, execute, executeAll
 ### Configurations
 In `s-project.json` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
 ```json
@@ -101,6 +102,18 @@ In `s-project.json` add following to execute all the migration upon DynamoDB Loc
   }
 }
 ```
+
+For Migration-Commands execute/executeAll following optional parameters can be used
+
+```
+--region                  -r  Region that dynamodb should be remotely executed.
+--stage                   -s  Stage that dynamodb should be remotely executed.
+--table_prefix            -t  Dynamodb Table name prefixs (E.g. for prefix = production- and abstract table-name = users, after adding the prefix it will be production-users)
+--table_suffix            -x  Table name suffix (E.g for suffix = -test and abstract table-name = users, after adding the suffix it will be users-test )
+--profile                 -p  Use another AWS Profile to execute migration
+--name                    -n  Execute a migration template with the given name (This is only for execute command and not applicable for executeAll).
+```
+
 ### Migration Template
 ```json
 {
@@ -162,6 +175,7 @@ In `s-project.json` add following to execute all the migration upon DynamoDB Loc
         "attr_2": "attr_2_value"
     }]
 }
+
 ```
 Before modifying the migration template, refer the (Dynamodb Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property and (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property links.
 
