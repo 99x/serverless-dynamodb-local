@@ -7,7 +7,7 @@ serverless-dynamodb-local
 [![license](https://img.shields.io/npm/l/serverless-dynamodb-local.svg)](https://www.npmjs.com/package/serverless-dynamodb-local)
 
 ## This Plugin Requires
-* Serverless V0.5 or newer
+* serverless@v1-rc.1
 * Java Runtime Engine (JRE) version 6.x or newer
 
 ## Features
@@ -16,10 +16,11 @@ serverless-dynamodb-local
 * Create, Manage and Execute DynamoDB Migration Scripts(Table Creation/ Data Seeds) for DynamoDB Local and Online
 
 ## Install Plugin
-`npm install --save serverless-dynamodb-local`
+`npm install --save serverless-dynamodb-local@v1`
 
-Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
-e.g `"plugins": ["serverless-dynamodb-local"]`
+Then in `serverless.yml` add following entry to the plugins array: `serverless-dynamodb-local`
+e.g `plugins:
+       - serverless-dynamodb-local`
 
 ## Using the Plugin
 1) Install DynamoDB Local
@@ -37,9 +38,6 @@ e.g `"plugins": ["serverless-dynamodb-local"]`
 
 * Execute all migrations for DynamoDB Local.
 `sls dynamodb executeAll`
-
-* Execute migration(s) in remote DynamoDB use additional parameters(region and stage) after execute/executeAll. e.g.
-`sls dynamodb executeAll -r us-west-1 -s dev`
 
 Note: Read the detailed section for more information on advanced options and configurations. Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local.
 
@@ -64,42 +62,35 @@ All CLI options are optional:
 
 All the above options can be added to s-project.json to set default configuration: e.g
 
-```json
-"custom": {
-  "dynamodb": {
-    "start": {
-      "port": "8000",
-      "inMemory": true,
-      "migration": true
-    }
-  }
-}
+```yml
+custom:
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migration: true
+    migration:
+      dir: ./offline/migrations
 ```
 
 ##  Migrations: sls dynamodb create/execute/executeAll
 ### Configurations
 In `s-project.json` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
-```json
-"custom": {
-  "dynamodb": {
-    "migration": {
-      "dir": "dynamodbMigrations",
-      "table_prefix": "",
-      "table_suffix": ""
-    }
-  }
-}
+```yml
+custom:
+  dynamodb:
+    migration:
+      dir: dynamodbMigrations
+        table_prefix: prefix
+        table_suffix": suffix
 ```
 
 In `s-project.json` add following to execute all the migration upon DynamoDB Local Start
-```json
-"custom": {
-  "dynamodb": {
-    "start": {
-      "migration": true
-    }
-  }
-}
+```yml
+custom:
+  dynamodb:
+    start:
+      migration: true
 ```
 ### Migration Template
 ```json

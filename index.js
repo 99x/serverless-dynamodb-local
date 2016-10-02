@@ -34,12 +34,10 @@ class ServerlessDynamodbLocal {
                                 usage: 'Execute a migration template with the given name'
                             },
                             region: {
-                                required: true,
                                 shortcut: 'r',
                                 usage: 'Region that dynamodb should be remotely executed'
                             },
                             stage: {
-                                required: true,
                                 shortcut: 's',
                                 usage: 'Stage that dynamodb should be remotely executed'
                             }
@@ -49,12 +47,10 @@ class ServerlessDynamodbLocal {
                         lifecycleEvents: ['executeAllHandler'],
                         options: {
                             region: {
-                                required: true,
                                 shortcut: 'r',
                                 usage: 'Region that dynamodb should be remotely executed'
                             },
                             stage: {
-                                required: true,
                                 shortcut: 's',
                                 usage: 'Stage that dynamodb should be remotely executed'
                             }
@@ -127,6 +123,39 @@ class ServerlessDynamodbLocal {
         });
     }
 
+	dynamodbOptions(stage, region) {
+			let self = this;
+            let credentials, config = self.service.custom.dynamodb || {},
+                port = config.start && config.start.port || 8000,
+                dynamoOptions;
+
+			dynamoOptions = {
+                    endpoint: 'http://localhost:' + port,
+                    region: 'localhost'
+                };
+
+			return {
+                raw: new AWS.DynamoDB(dynamoOptions),
+                doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
+            };
+        }
+
+        tableOptions(table_prefix, table_suffix) {
+			let self = this;
+            let config = self.service.custom.dynamodb,
+                migration = config && config.migration || {},
+                rootPath = self.serverless.config.servicePath,
+                path = rootPath + '/' + (migration.dir || 'dynamodb'),
+                suffix = table_suffix || migration.table_suffix || '',
+                prefix = table_prefix || migration.table_prefix || '';
+
+            return {
+                suffix: suffix,
+                prefix: prefix,
+                path: path
+            };
+        }
+
     executeHandler() {
         let self = this,
             options = this.options;
@@ -175,7 +204,7 @@ class ServerlessDynamodbLocal {
             if (options.migration) {
                 dynamodbLocal.start(options);
                 console.log(""); // seperator
-                self.executeAll();
+                self.executeAllHandler();
                 resolve();
             } else {
                 dynamodbLocal.start(options);
