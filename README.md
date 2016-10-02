@@ -19,9 +19,10 @@ serverless-dynamodb-local
 `npm install --save serverless-dynamodb-local`
 
 Then in `serverless.yml` add following entry to the plugins array: `serverless-dynamodb-local`
-e.g 
-```plugins:
-     - serverless-dynamodb-local```
+```yml
+plugins:
+  - serverless-dynamodb-local
+```
 
 ## Using the Plugin
 1) Install DynamoDB Local
@@ -51,7 +52,7 @@ Note: This is useful if the sls dynamodb install failed in between to completely
 All CLI options are optional:
 
 ```
---port                    -p  Port to listen on. Default: 8000
+--port  		  -p  Port to listen on. Default: 8000
 --cors                    -c  Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.
 --inMemory                -i  DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.
 --dbPath                  -d  The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.
