@@ -10,7 +10,7 @@ For serverless@v1-rc.1 installation and documentation [please see v1 branch](htt
 
 Following instructions are for serverless@0.5.x
 ## This Plugin Requires
-* Serverless V0.5 or newer
+* Serverless V0.5.x
 * Java Runtime Engine (JRE) version 6.x or newer
 
 ## Features
