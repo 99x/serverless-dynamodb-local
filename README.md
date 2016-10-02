@@ -6,6 +6,9 @@ serverless-dynamodb-local
 [![npm version](https://badge.fury.io/js/serverless-dynamodb-local.svg)](https://badge.fury.io/js/serverless-dynamodb-local)
 [![license](https://img.shields.io/npm/l/serverless-dynamodb-local.svg)](https://www.npmjs.com/package/serverless-dynamodb-local)
 
+For serverless@v1-rc.1 installation and documentation [please see v1 branch](https://github.com/99xt/serverless-dynamodb-local/tree/v1).
+
+Following instructions are for serverless@0.5.*
 ## This Plugin Requires
 * Serverless V0.5 or newer
 * Java Runtime Engine (JRE) version 6.x or newer
@@ -16,7 +19,7 @@ serverless-dynamodb-local
 * Create, Manage and Execute DynamoDB Migration Scripts(Table Creation/ Data Seeds) for DynamoDB Local and Online
 
 ## Install Plugin
-`npm install --save serverless-dynamodb-local`
+`npm install --save serverless-dynamodb-local@0.2.8`
 
 Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
 e.g `"plugins": ["serverless-dynamodb-local"]`
