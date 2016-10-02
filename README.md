@@ -19,8 +19,9 @@ serverless-dynamodb-local
 `npm install --save serverless-dynamodb-local`
 
 Then in `serverless.yml` add following entry to the plugins array: `serverless-dynamodb-local`
-e.g `plugins:
-       - serverless-dynamodb-local`
+e.g 
+```plugins:
+     - serverless-dynamodb-local```
 
 ## Using the Plugin
 1) Install DynamoDB Local
