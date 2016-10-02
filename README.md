@@ -8,7 +8,7 @@ serverless-dynamodb-local
 
 For serverless@v1-rc.1 installation and documentation [please see v1 branch](https://github.com/99xt/serverless-dynamodb-local/tree/v1).
 
-Following instructions are for serverless@0.5.*
+Following instructions are for serverless@0.5.x
 ## This Plugin Requires
 * Serverless V0.5 or newer
 * Java Runtime Engine (JRE) version 6.x or newer
