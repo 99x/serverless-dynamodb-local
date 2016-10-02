@@ -19,7 +19,7 @@ Following instructions are for serverless@0.5.x
 * Create, Manage and Execute DynamoDB Migration Scripts(Table Creation/ Data Seeds) for DynamoDB Local and Online
 
 ## Install Plugin
-`npm install --save serverless-dynamodb-local@0.2.8`
+`npm install --save serverless-dynamodb-local@0.2.10`
 
 Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
 e.g `"plugins": ["serverless-dynamodb-local"]`
