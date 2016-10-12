@@ -21,7 +21,7 @@ Following instructions are for serverless@0.5.x
 ## Install Plugin
 `npm install --save serverless-dynamodb-local@0.2.10`
 
-Then in `serverless.yml` add following entry to the plugins array: `serverless-dynamodb-local`
+Then in `s-project.json` add following entry to the plugins array: `serverless-dynamodb-local`
 e.g `"plugins": ["serverless-dynamodb-local"]`
 
 ## Using the Plugin
@@ -82,7 +82,7 @@ All the above options can be added to serverless.yml to set default configuratio
 ##  Migrations: sls dynamodb <migration-command>
 Migration-Commands create, execute, executeAll
 ### Configurations
-In `serverless.yml` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
+In `s-project.json` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
 ```json
 "custom": {
   "dynamodb": {
@@ -95,7 +95,7 @@ In `serverless.yml` add following to customize DynamoDB Migrations file director
 }
 ```
 
-In `serverless.yml` add following to execute all the migration upon DynamoDB Local Start
+In `s-project.json` add following to execute all the migration upon DynamoDB Local Start
 ```json
 "custom": {
   "dynamodb": {
