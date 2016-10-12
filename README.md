@@ -62,7 +62,7 @@ All CLI options are optional:
 --migration               -m  After starting dynamodb local, run dynamodb migrations.
 ```
 
-All the above options can be added to s-project.json to set default configuration: e.g
+All the above options can be added to serverless.yml to set default configuration: e.g
 
 ```yml
 custom:
@@ -77,7 +77,7 @@ custom:
 
 ##  Migrations: sls dynamodb create/execute/executeAll
 ### Configurations
-In `s-project.json` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
+In `serverless.yml` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
 ```yml
 custom:
   dynamodb:
@@ -87,7 +87,7 @@ custom:
         table_suffix": suffix
 ```
 
-In `s-project.json` add following to execute all the migration upon DynamoDB Local Start
+In `serverless.yml` add following to execute all the migration upon DynamoDB Local Start
 ```yml
 custom:
   dynamodb:
