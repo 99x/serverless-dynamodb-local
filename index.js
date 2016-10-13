@@ -168,10 +168,11 @@ class ServerlessDynamodbLocal {
         });
     }
 
-    executeAllHandler() {
-        let self = this;
+    executeAllHandler(isOffline) {
+        let self = this,
+			region = isOffline ? null :self.service.provider.region 
         return new BbPromise(function(resolve, reject) {
-            let dynamodb = self.dynamodbOptions(self.service.provider.region),
+            let dynamodb = self.dynamodbOptions(region),
                 tableOptions = self.tableOptions();
 	        dynamodbMigrations.init(dynamodb, tableOptions.path);
             dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
@@ -206,7 +207,7 @@ class ServerlessDynamodbLocal {
             if (options.migration) {
                 dynamodbLocal.start(options);
                 console.log(""); // seperator
-                self.executeAllHandler();
+                self.executeAllHandler(true);
                 resolve();
             } else {
                 dynamodbLocal.start(options);
