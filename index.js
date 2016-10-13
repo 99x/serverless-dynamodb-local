@@ -44,17 +44,7 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     executeAll: {
-                        lifecycleEvents: ['executeAllHandler'],
-                        options: {
-                            region: {
-                                shortcut: 'r',
-                                usage: 'Region that dynamodb should be remotely executed'
-                            },
-                            stage: {
-                                shortcut: 's',
-                                usage: 'Stage that dynamodb should be remotely executed'
-                            }
-                        }
+                        lifecycleEvents: ['executeAllHandler']
                     },
                     start: {
                         lifecycleEvents: ['startHandler'],
@@ -97,7 +87,14 @@ class ServerlessDynamodbLocal {
                         lifecycleEvents: ['removeHandler']
                     },
                     install: {
-                        lifecycleEvents: ['installHandler']
+                        lifecycleEvents: ['installHandler'],
+						options: {
+                            localPath: {
+                                shortcut: 'x',
+                                usage: 'Local dynamodb install path'
+                            }
+                        }
+						
                     }
                 }
             }
@@ -123,17 +120,21 @@ class ServerlessDynamodbLocal {
         });
     }
 
-	dynamodbOptions(stage, region) {
+	dynamodbOptions(region) {
 			let self = this;
             let credentials, config = self.service.custom.dynamodb || {},
                 port = config.start && config.start.port || 8000,
                 dynamoOptions;
-
-			dynamoOptions = {
+			if(region){
+                AWS.config.update({
+                    region: region
+                });
+			}else{
+				dynamoOptions = {
                     endpoint: 'http://localhost:' + port,
                     region: 'localhost'
                 };
-
+			}		
 			return {
                 raw: new AWS.DynamoDB(dynamoOptions),
                 doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
@@ -168,12 +169,11 @@ class ServerlessDynamodbLocal {
     }
 
     executeAllHandler() {
-        let self = this,
-            options = this.options;
+        let self = this;
         return new BbPromise(function(resolve, reject) {
-            let dynamodb = self.dynamodbOptions(options.stage, options.region),
+            let dynamodb = self.dynamodbOptions(self.service.provider.region),
                 tableOptions = self.tableOptions();
-            dynamodbMigrations.init(dynamodb, tableOptions.path);
+	        dynamodbMigrations.init(dynamodb, tableOptions.path);
             dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
         });
     }
@@ -185,8 +185,10 @@ class ServerlessDynamodbLocal {
     }
 
     installHandler() {
+        let self = this,
+			options = this.options;
         return new BbPromise(function(resolve) {
-            dynamodbLocal.install(resolve);
+	            dynamodbLocal.install(resolve, options.localPath);
         });
     }
 
