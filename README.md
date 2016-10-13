@@ -38,7 +38,7 @@ plugins:
 * Execute a single migration. Make sure DynamoDB Local is started in another shell.
 `sls dynamodb execute -n <filename>`
 
-* Execute all migrations for DynamoDB Local.
+* Execute all migrations on the remote dynamodb.
 `sls dynamodb executeAll`
 
 Note: Read the detailed section for more information on advanced options and configurations. Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local.
