@@ -182,6 +182,9 @@ new AWS.DynamoDB({
 ### Using with serverless-offline plugin
 When using this plugin with serverless-offline, it is difficult to use above syntax since the code should use DynamoDB Local for development, and use DynamoDB Online after provisioning in AWS. Therefore we suggest you to use [serverless-dynamodb-client](https://github.com/99xt/serverless-dynamodb-client) plugin in your code.
 
+## Reference Project
+* [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
+
 ## Links
 * [Dynamodb local documentation](http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/DynamoDBLocal.html)
 * [Contact Us](mailto:ashanf@99x.lk)
