@@ -62,7 +62,7 @@ All CLI options are optional:
 --migration               -m  After starting dynamodb local, run dynamodb migrations.
 ```
 
-All the above options can be added to serverless.yml to set default configuration: e.g
+All the above options can be added to serverless.yml to set default configuration: e.g.
 
 ```yml
 custom:
