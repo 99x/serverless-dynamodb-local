@@ -44,7 +44,13 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     executeAll: {
-                        lifecycleEvents: ['executeAllHandler']
+                        lifecycleEvents: ['executeAllHandler'],
+                        options: {
+                            stage: {
+                                shortcut: 's',
+                                usage: 'Stage that dynamodb should be remotely executed'
+                            }
+                        }
                     },
                     start: {
                         lifecycleEvents: ['startHandler'],
@@ -170,10 +176,12 @@ class ServerlessDynamodbLocal {
 
     executeAllHandler(isOffline) {
         let self = this,
-			region = isOffline ? null :self.service.provider.region 
+            region = isOffline ? null : self.service.provider.region,
+            options = this.options;
+        
         return new BbPromise(function(resolve, reject) {
             let dynamodb = self.dynamodbOptions(region),
-                tableOptions = self.tableOptions();
+                tableOptions = self.tableOptions(options.stage);
 	        dynamodbMigrations.init(dynamodb, tableOptions.path);
             dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
         });
