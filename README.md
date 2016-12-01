@@ -182,6 +182,20 @@ new AWS.DynamoDB({
 ### Using with serverless-offline plugin
 When using this plugin with serverless-offline, it is difficult to use above syntax since the code should use DynamoDB Local for development, and use DynamoDB Online after provisioning in AWS. Therefore we suggest you to use [serverless-dynamodb-client](https://github.com/99xt/serverless-dynamodb-client) plugin in your code.
 
+The `serverless dynamodb start` command can be triggered automatically when using `serverless-offline` plugin.
+Please note that you still need to install DynamoDB Local first.
+
+Add both plugins to your `serverless.yml` file:
+```yaml
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+```
+
+Make sure that `serverless-dynamodb-local` is above `serverless-offline` so it will be loaded earlier.
+
+Now your local DynamoDB database will be automatically started before running `serverless offline`.
+
 ## Reference Project
 * [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
 
