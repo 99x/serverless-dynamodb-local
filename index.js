@@ -138,8 +138,10 @@ class ServerlessDynamodbLocal {
                 });
 			}else{
 				dynamoOptions = {
-                    endpoint: 'http://localhost:' + port,
-                    region: 'localhost'
+			endpoint: 'http://localhost:' + port,
+			region: 'localhost',
+			accessKeyId: '1234',
+			secretAccessKey: '1234'
                 };
 			}		
 			return {
