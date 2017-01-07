@@ -2,7 +2,6 @@
 
 const _ = require('lodash'),
     BbPromise = require('bluebird'),
-    dynamodbMigrations = require('dynamodb-migrations'),
     AWS = require('aws-sdk'),
     dynamodbLocal = require('dynamodb-localhost');
 
@@ -15,40 +14,12 @@ class ServerlessDynamodbLocal {
         this.commands = {
             dynamodb: {
                 commands: {
-                    create: {
-                        lifecycleEvents: ['createHandler'],
-                        options: {
-                            name: {
-                                required: true,
-                                shortcut: 'n',
-                                usage: 'Create a migration template inside the directlry given in s-project.json with the given name.',
-                            }
-                        }
-                    },
-                    execute: {
-                        lifecycleEvents: ['executeHandler'],
-                        options: {
-                            name: {
-                                required: true,
-                                shortcut: 'n',
-                                usage: 'Execute a migration template with the given name'
-                            },
-                            region: {
-                                shortcut: 'r',
-                                usage: 'Region that dynamodb should be remotely executed'
-                            },
-                            stage: {
-                                shortcut: 's',
-                                usage: 'Stage that dynamodb should be remotely executed'
-                            }
-                        }
-                    },
-                    executeAll: {
-                        lifecycleEvents: ['executeAllHandler'],
+                    migrate: {
+                        lifecycleEvents: ['migrateHandler'],
                         options: {
                             stage: {
-                                shortcut: 's',
-                                usage: 'Stage that dynamodb should be remotely executed'
+                                shortcut: 'm',
+                                usage: 'Create DynamoDB tables from the current serverless configuration'
                             }
                         }
                     },
@@ -83,9 +54,9 @@ class ServerlessDynamodbLocal {
                                 shortcut: 'o',
                                 usage: 'Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.'
                             },
-                            migration: {
+                            migrate: {
                                 shortcut: 'm',
-                                usage: 'After starting dynamodb local, run dynamodb migrations'
+                                usage: 'After starting dynamodb local, create DynamoDB tables from the current serverless configuration'
                             }
                         }
                     },
@@ -94,120 +65,89 @@ class ServerlessDynamodbLocal {
                     },
                     install: {
                         lifecycleEvents: ['installHandler'],
-						options: {
+                        options: {
                             localPath: {
                                 shortcut: 'x',
                                 usage: 'Local dynamodb install path'
                             }
                         }
-						
+
                     }
                 }
             }
         };
 
         this.hooks = {
-            'dynamodb:create:createHandler': this.createHandler.bind(this),
-            'dynamodb:execute:executeHandler': this.executeHandler.bind(this),
-            'dynamodb:executeAll:executeAllHandler': this.executeAllHandler.bind(this),
+            'dynamodb:migrate:migrateHandler': this.migrateHandler.bind(this),
             'dynamodb:remove:removeHandler': this.removeHandler.bind(this),
             'dynamodb:install:installHandler': this.installHandler.bind(this),
             'dynamodb:start:startHandler': this.startHandler.bind(this),
             'before:offline:start': this.startHandler.bind(this),
         };
     }
-    createHandler() {
-        let self = this,
-            options = this.options;
-        return new BbPromise(function(resolve, reject) {
+
+    dynamodbOptions() {
+        let self = this;
+        let config = self.service.custom.dynamodb || {},
+            port = config.start && config.start.port || 8000,
+            dynamoOptions = {
+                endpoint: 'http://localhost:' + port,
+                region: 'localhost',
+                accessKeyId: 'MOCK_ACCESS_KEY_ID',
+                secretAccessKey: 'MOCK_SECRET_ACCESS_KEY'
+            };
+
+        return {
+            raw: new AWS.DynamoDB(dynamoOptions),
+            doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
+        };
+    }
+
+    tableOptions(table_prefix, table_suffix) {
+        let self = this;
+        let config = self.service.custom.dynamodb,
+            migration = config && config.migration || {},
+            suffix = table_suffix || migration.table_suffix || '',
+            prefix = table_prefix || migration.table_prefix || '';
+
+        return {
+            suffix: suffix,
+            prefix: prefix
+        };
+    }
+
+    migrateHandler() {
+        let self = this;
+
+        return new BbPromise(function (resolve, reject) {
             let dynamodb = self.dynamodbOptions(),
                 tableOptions = self.tableOptions();
-            dynamodbMigrations.init(dynamodb, tableOptions.path);
-            dynamodbMigrations.create(options.name).then(resolve, reject);
-        });
-    }
 
-	dynamodbOptions(region) {
-			let self = this;
-            let credentials, config = self.service.custom.dynamodb || {},
-                port = config.start && config.start.port || 8000,
-                dynamoOptions;
-			if(region){
-                AWS.config.update({
-                    region: region
-                });
-			}else{
-				dynamoOptions = {
-			endpoint: 'http://localhost:' + port,
-			region: 'localhost',
-			accessKeyId: 'MOCK_ACCESS_KEY_ID',
-			secretAccessKey: 'MOCK_SECRET_ACCESS_KEY'
-                };
-			}		
-			return {
-                raw: new AWS.DynamoDB(dynamoOptions),
-                doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
-            };
-        }
+            var tables = self.resourceTables();
 
-        tableOptions(table_prefix, table_suffix) {
-			let self = this;
-            let config = self.service.custom.dynamodb,
-                migration = config && config.migration || {},
-                rootPath = self.serverless.config.servicePath,
-                path = rootPath + '/' + (migration.dir || 'dynamodb'),
-                suffix = table_suffix || migration.table_suffix || '',
-                prefix = table_prefix || migration.table_prefix || '';
-
-            return {
-                suffix: suffix,
-                prefix: prefix,
-                path: path
-            };
-        }
-
-    executeHandler() {
-        let self = this,
-            options = this.options;
-        return new BbPromise(function(resolve, reject) {
-            let dynamodb = self.dynamodbOptions(options.stage, options.region),
-                tableOptions = self.tableOptions();
-            dynamodbMigrations.init(dynamodb, tableOptions.path);
-            dynamodbMigrations.execute(options.name, tableOptions).then(resolve, reject);
-        });
-    }
-
-    executeAllHandler(isOffline) {
-        let self = this,
-            region = isOffline ? null : self.service.provider.region,
-            options = this.options;
-        
-        return new BbPromise(function(resolve, reject) {
-            let dynamodb = self.dynamodbOptions(region),
-                tableOptions = self.tableOptions(options.stage);
-	        dynamodbMigrations.init(dynamodb, tableOptions.path);
-            dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
+            return BbPromise.each(tables, function (table) {
+                table.TableName = self.formatTableName(table, tableOptions);
+                return self.createTable(dynamodb, table);
+            }).then(resolve, reject);
         });
     }
 
     removeHandler() {
-        return new BbPromise(function(resolve) {
+        return new BbPromise(function (resolve) {
             dynamodbLocal.remove(resolve);
         });
     }
 
     installHandler() {
-        let self = this,
-			options = this.options;
-        return new BbPromise(function(resolve) {
-	            dynamodbLocal.install(resolve, options.localPath);
+        let options = this.options;
+        return new BbPromise(function (resolve) {
+            dynamodbLocal.install(resolve, options.localPath);
         });
     }
 
     startHandler() {
-        let self = this,
-            options = this.options;
-        return new BbPromise(function(resolve) {
+        let self = this;
+        return new BbPromise(function (resolve) {
             let config = self.service.custom.dynamodb,
                 options = _.merge({
                         sharedDb: self.options.sharedDb || true
@@ -215,10 +155,10 @@ class ServerlessDynamodbLocal {
                     self.options,
                     config && config.start
                 );
-            if (options.migration) {
+            if (options.migrate) {
                 dynamodbLocal.start(options);
                 console.log(""); // seperator
-                self.executeAllHandler(true);
+                self.migrateHandler(true);
                 resolve();
             } else {
                 dynamodbLocal.start(options);
@@ -226,6 +166,34 @@ class ServerlessDynamodbLocal {
                 resolve();
             }
         });
+    }
+
+    resourceTables() {
+        var resources = this.service.resources.Resources;
+        return Object.keys(resources).map(function (key) {
+            if (resources[key].Type == 'AWS::DynamoDB::Table') {
+                return resources[key].Properties;
+            }
+        }).filter(n => {
+            return n;
+        });
+    }
+
+    createTable(dynamodb, migration) {
+        return new BbPromise(function (resolve) {
+            dynamodb.raw.createTable(migration, function (err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Table creation completed for table: " + migration.TableName);
+                }
+                resolve(migration);
+            });
+        });
+    }
+
+    formatTableName(table, options) {
+        return options.prefix + table.TableName + options.suffix;
     }
 }
 module.exports = ServerlessDynamodbLocal;
