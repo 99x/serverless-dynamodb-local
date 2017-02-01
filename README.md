@@ -68,15 +68,6 @@ custom:
 
 ##  Migrations: sls dynamodb migrate
 ### Configurations
-In `serverless.yml` add following to customize DynamoDB Migrations table prefixes/suffixes
-```yml
-custom:
-  dynamodb:
-    migration:
-      table_prefix: prefix
-      table_suffix": suffix
-```
-
 In `serverless.yml` add following to execute all the migration upon DynamoDB Local Start
 ```yml
 custom:

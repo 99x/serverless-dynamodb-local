@@ -16,15 +16,11 @@ class ServerlessDynamodbLocal {
                 commands: {
                     migrate: {
                         lifecycleEvents: ['migrateHandler'],
-                        options: {
-                            stage: {
-                                shortcut: 'm',
-                                usage: 'Create DynamoDB tables from the current serverless configuration'
-                            }
-                        }
+                        usage: 'Creates local DynamoDB tables from the current Serverless configuration'
                     },
                     start: {
                         lifecycleEvents: ['startHandler'],
+                        usage: 'Starts local DynamoDB',
                         options: {
                             port: {
                                 shortcut: 'p',
@@ -61,9 +57,11 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     remove: {
-                        lifecycleEvents: ['removeHandler']
+                        lifecycleEvents: ['removeHandler'],
+                        usage: 'Removes local DynamoDB'
                     },
                     install: {
+                        usage: 'Installs local DynamoDB',
                         lifecycleEvents: ['installHandler'],
                         options: {
                             localPath: {
@@ -103,30 +101,15 @@ class ServerlessDynamodbLocal {
         };
     }
 
-    tableOptions(table_prefix, table_suffix) {
-        let self = this;
-        let config = self.service.custom.dynamodb,
-            migration = config && config.migration || {},
-            suffix = table_suffix || migration.table_suffix || '',
-            prefix = table_prefix || migration.table_prefix || '';
-
-        return {
-            suffix: suffix,
-            prefix: prefix
-        };
-    }
-
     migrateHandler() {
         let self = this;
 
         return new BbPromise(function (resolve, reject) {
-            let dynamodb = self.dynamodbOptions(),
-                tableOptions = self.tableOptions();
+            let dynamodb = self.dynamodbOptions();
 
             var tables = self.resourceTables();
 
             return BbPromise.each(tables, function (table) {
-                table.TableName = self.formatTableName(table, tableOptions);
                 return self.createTable(dynamodb, table);
             }).then(resolve, reject);
         });
@@ -190,10 +173,6 @@ class ServerlessDynamodbLocal {
                 resolve(migration);
             });
         });
-    }
-
-    formatTableName(table, options) {
-        return options.prefix + table.TableName + options.suffix;
     }
 }
 module.exports = ServerlessDynamodbLocal;
