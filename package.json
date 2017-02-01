@@ -1,17 +1,17 @@
 {
-  "name": "serverless-dynamodb-local",
-  "version": "0.2.15",
-  "engines": {
-    "node": ">=4.0"
-  },
-  "description": "Serverless dynamodb local plugin",
-  "author": "99xtechnology.com",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/99xt/serverless-dynamodb-local"
-  },
-  "keywords": [
+    "name": "serverless-dynamodb-local",
+    "version": "0.2.16",
+    "engines": {
+        "node": ">=4.0"
+    },
+    "description": "Serverless dynamodb local plugin",
+    "author": "99xtechnology.com",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/99xt/serverless-dynamodb-local"
+    },
+    "keywords": [
     "serverless framework plugin",
     "serverless applications",
     "serverless plugins",
@@ -26,15 +26,15 @@
     "amazon web services",
     "serverless.com"
   ],
-  "main": "index.js",
-  "bin": {},
-  "scripts": {
-    "test": "echo \"Warning: no test specified\" && exit 0"
-  },
-  "dependencies": {
-    "aws-sdk": "^2.7.0",
-    "bluebird": "^3.4.6",
-    "dynamodb-localhost": "^0.0.4",
-    "lodash": "^4.17.0"
-  }
+    "main": "index.js",
+    "bin": {},
+    "scripts": {
+        "test": "echo \"Warning: no test specified\" && exit 0"
+    },
+    "dependencies": {
+        "aws-sdk": "^2.7.0",
+        "bluebird": "^3.4.6",
+        "dynamodb-localhost": "^0.0.5",
+        "lodash": "^4.17.0"
+    }
 }
