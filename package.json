@@ -1,6 +1,6 @@
 {
     "name": "serverless-dynamodb-local",
-    "version": "0.2.16",
+    "version": "0.2.18",
     "engines": {
         "node": ">=4.0"
     },
