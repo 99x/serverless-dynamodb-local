@@ -94,13 +94,12 @@ class ServerlessDynamodbLocal {
                     },
                     install: {
                         lifecycleEvents: ['installHandler'],
-						options: {
+                        options: {
                             localPath: {
                                 shortcut: 'x',
                                 usage: 'Local dynamodb install path'
                             }
                         }
-						
                     }
                 }
             }
@@ -127,31 +126,31 @@ class ServerlessDynamodbLocal {
         });
     }
 
-	dynamodbOptions(region) {
-			let self = this;
+    dynamodbOptions(region) {
+            let self = this;
             let credentials, config = self.service.custom.dynamodb || {},
                 port = config.start && config.start.port || 8000,
                 dynamoOptions;
-			if(region){
+            if(region){
                 AWS.config.update({
                     region: region
                 });
-			}else{
-				dynamoOptions = {
-			endpoint: 'http://localhost:' + port,
-			region: 'localhost',
-			accessKeyId: 'MOCK_ACCESS_KEY_ID',
-			secretAccessKey: 'MOCK_SECRET_ACCESS_KEY'
+            }else{
+                dynamoOptions = {
+                    endpoint: 'http://localhost:' + port,
+                    region: 'localhost',
+                    accessKeyId: 'MOCK_ACCESS_KEY_ID',
+                    secretAccessKey: 'MOCK_SECRET_ACCESS_KEY'
                 };
-			}		
-			return {
+            }
+            return {
                 raw: new AWS.DynamoDB(dynamoOptions),
                 doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
             };
         }
 
         tableOptions(table_prefix, table_suffix) {
-			let self = this;
+            let self = this;
             let config = self.service.custom.dynamodb,
                 migration = config && config.migration || {},
                 rootPath = self.serverless.config.servicePath,
@@ -181,11 +180,11 @@ class ServerlessDynamodbLocal {
         let self = this,
             region = isOffline ? null : self.service.provider.region,
             options = this.options;
-        
+
         return new BbPromise(function(resolve, reject) {
             let dynamodb = self.dynamodbOptions(region),
                 tableOptions = self.tableOptions();
-	        dynamodbMigrations.init(dynamodb, tableOptions.path);
+            dynamodbMigrations.init(dynamodb, tableOptions.path);
             dynamodbMigrations.executeAll(tableOptions).then(resolve, reject);
         });
     }
@@ -198,9 +197,9 @@ class ServerlessDynamodbLocal {
 
     installHandler() {
         let self = this,
-			options = this.options;
+            options = this.options;
         return new BbPromise(function(resolve) {
-	            dynamodbLocal.install(resolve, options.localPath);
+                dynamodbLocal.install(resolve, options.localPath);
         });
     }
 
