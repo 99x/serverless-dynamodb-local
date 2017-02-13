@@ -9,6 +9,7 @@ class ServerlessDynamodbLocal {
     constructor(serverless, options) {
         this.serverless = serverless;
         this.service = serverless.service;
+        this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = options;
         this.provider = 'aws';
         this.commands = {
@@ -86,8 +87,7 @@ class ServerlessDynamodbLocal {
 
     dynamodbOptions() {
         let self = this;
-        let config = self.service.custom.dynamodb || {},
-            port = config.start && config.start.port || 8000,
+        let port = self.config.start && self.config.start.port || 8000,
             dynamoOptions = {
                 endpoint: 'http://localhost:' + port,
                 region: 'localhost',
@@ -131,12 +131,11 @@ class ServerlessDynamodbLocal {
     startHandler() {
         let self = this;
         return new BbPromise(function (resolve) {
-            let config = self.service.custom.dynamodb,
-                options = _.merge({
+            let options = _.merge({
                         sharedDb: self.options.sharedDb || true
                     },
                     self.options,
-                    config && config.start
+                    self.config && self.config.start
                 );
             if (options.migrate) {
                 dynamodbLocal.start(options);
