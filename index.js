@@ -16,6 +16,7 @@ class ServerlessDynamodbLocal {
             dynamodb: {
                 commands: {
                     create: {
+                        usage: 'Create a DynamoDB migration template.',
                         lifecycleEvents: ['createHandler'],
                         options: {
                             name: {
@@ -26,6 +27,7 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     execute: {
+                        usage: 'Execute a DynamoDB migration template.',
                         lifecycleEvents: ['executeHandler'],
                         options: {
                             name: {
@@ -44,6 +46,7 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     executeAll: {
+                        usage: 'Execute all DynamoDB migration templates.',
                         lifecycleEvents: ['executeAllHandler'],
                         options: {
                             stage: {
@@ -53,6 +56,7 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     start: {
+                        usage: 'Start a local DynamoDB.',
                         lifecycleEvents: ['startHandler'],
                         options: {
                             port: {
@@ -90,9 +94,11 @@ class ServerlessDynamodbLocal {
                         }
                     },
                     remove: {
+                        usage: 'Remove a local DynamoDB installation.',
                         lifecycleEvents: ['removeHandler']
                     },
                     install: {
+                        usage: 'Install a local DynamoDB.',
                         lifecycleEvents: ['installHandler'],
 						options: {
                             localPath: {
