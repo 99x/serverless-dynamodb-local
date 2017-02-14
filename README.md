@@ -13,7 +13,7 @@ serverless-dynamodb-local
 ## Features
 * Install DynamoDB Local
 * Start DynamoDB Local with all the parameters supported (e.g port, inMemory, sharedDb)
-* Create, Manage and Execute DynamoDB Migration Scripts(Table Creation/ Data Seeds) for DynamoDB Local and Online
+* Table Creation for DynamoDB Local
 
 ## Install Plugin
 `npm install --save serverless-dynamodb-local`
@@ -28,18 +28,11 @@ plugins:
 1) Install DynamoDB Local
 `sls dynamodb install`
 
-2) Start DynamoDB Local (DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window). Make sure above command is executed before this.
-`sls dynamodb start`
+2) Add DynamoDB Resource definitions to your Serverless configuration, as defined here: https://serverless.com/framework/docs/providers/aws/guide/resources/#configuration
 
-3) Create/Execute DynamoDB (Migrations)
-* Create a new migration file (Default directory path /dynamodb). Make sure DynamoDB Local is started in another shell.
-`sls dynamodb create -n <filename>`
+3) Start DynamoDB Local and migrate (DynamoDB will process incoming requests until you stop it. To stop DynamoDB, type Ctrl+C in the command prompt window). Make sure above command is executed before this.
+`sls dynamodb start --migrate`
 
-* Execute a single migration. Make sure DynamoDB Local is started in another shell.
-`sls dynamodb execute -n <filename>`
-
-* Execute all migrations on the remote dynamodb.
-`sls dynamodb executeAll`
 
 Note: Read the detailed section for more information on advanced options and configurations. Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local.
 
@@ -59,7 +52,7 @@ All CLI options are optional:
 --sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
---migration               -m  After starting dynamodb local, run dynamodb migrations.
+--migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration..
 ```
 
 All the above options can be added to serverless.yml to set default configuration: e.g.
@@ -71,92 +64,35 @@ custom:
       port: 8000
       inMemory: true
       migration: true
-    migration:
-      dir: ./offline/migrations
 ```
 
-##  Migrations: sls dynamodb create/execute/executeAll
+##  Migrations: sls dynamodb migrate
 ### Configurations
-In `serverless.yml` add following to customize DynamoDB Migrations file directory and table prefixes/suffixes
-```yml
-custom:
-  dynamodb:
-    migration:
-      dir: dynamodbMigrations
-        table_prefix: prefix
-        table_suffix": suffix
-```
-
 In `serverless.yml` add following to execute all the migration upon DynamoDB Local Start
 ```yml
 custom:
   dynamodb:
     start:
-      migration: true
+      migrate: true
 ```
-### Migration Template
-```json
-{
-    "Table": {
-        "TableName": "TableName",
-        "KeySchema": [{
-            "AttributeName": "attr_1",
-            "KeyType": "HASH"
-		}, {
-            "AttributeName": "attr_2",
-            "KeyType": "RANGE"
-		}],
-        "AttributeDefinitions": [{
-            "AttributeName": "attr_1",
-            "AttributeType": "S"
-		}, {
-            "AttributeName": "attr_2",
-            "AttributeType": "S"
-		}],
-        "LocalSecondaryIndexes": [{
-            "IndexName": "local_index_1",
-            "KeySchema": [{
-                "AttributeName": "attr_1",
-                "KeyType": "HASH"
-			}, {
-                "AttributeName": "attr_2",
-                "KeyType": "RANGE"
-			}],
-            "Projection": {
-                "NonKeyAttributes": ["attr_1", "attr_2"],
-                "ProjectionType": "INCLUDE"
-            }
-		}],
-        "GlobalSecondaryIndexes": [{
-            "IndexName": "global_index_1",
-            "KeySchema": [{
-                "AttributeName": "attr_1",
-                "KeyType": "HASH"
-			}, {
-                "AttributeName": "attr_2",
-                "KeyType": "RANGE"
-			}],
-            "Projection": {
-                "NonKeyAttributes": ["attr_1", "attr_2"],
-                "ProjectionType": "INCLUDE"
-            },
-            "ProvisionedThroughput": {
-                "ReadCapacityUnits": 1,
-                "WriteCapacityUnits": 1
-            }
-		}],
-        "ProvisionedThroughput": {
-            "ReadCapacityUnits": 1,
-            "WriteCapacityUnits": 1
-        }
-    },
-    "Seeds": [{
-        "attr_1": "attr_1_value",
-        "attr_2": "attr_2_value"
-    }]
-}
+### AWS::DynamoDB::Table Resource Template for serverless.yml
+```yml
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: email
+            AttributeType: S
+        KeySchema:
+          - AttributeName: email
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
 ```
-Before modifying the migration template, refer the (Dynamodb Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB.html#createTable-property and (Dynamodb Document Client SDK): http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html#put-property links.
 
 ## Using DynamoDB Local in your code
 You need to add the following parameters to the AWS NODE SDK dynamodb constructor
