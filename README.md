@@ -64,7 +64,7 @@ custom:
     start:
       port: 8000
       inMemory: true
-      mirate: true
+      migrate: true
       seed: true
 ```
 
