@@ -1,8 +1,8 @@
-const AWS = require('aws-sdk');
-const BbPromise = require('bluebird');
-const _ = require('lodash');
-const path = require('path');
-const fs = require('fs');
+const AWS = require("aws-sdk");
+const BbPromise = require("bluebird");
+const _ = require("lodash");
+const path = require("path");
+const fs = require("fs");
 
 // DynamoDB has a 25 item limit in batch requests
 // https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_BatchWriteItem.html
@@ -29,7 +29,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
     },
   };
   return new BbPromise((resolve, reject) => {
-    // interval lets us know how much time we've burnt so far. This lets us have a backoff mechanism to try
+    // interval lets us know how much time we have burnt so far. This lets us have a backoff mechanism to try
     // again a few times in case the Database resources are in the middle of provisioning.
     let interval = 0;
     function execute(interval) {
@@ -47,7 +47,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
     };
     execute(interval);
   });
-};
+}
 
 /**
  * Writes a seed corpus to the given database table
@@ -57,13 +57,13 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
  */
 function writeSeeds(dynamodb, tableName, seeds) {
   if (!dynamodb) {
-    throw new Error('dynamodb argument must be provided');
+    throw new Error("dynamodb argument must be provided");
   }
   if (!tableName) {
-    throw new Error('table name argument must be provided');
+    throw new Error("table name argument must be provided");
   }
   if (!seeds) {
-    throw new Error('seeds argument must be provided');
+    throw new Error("seeds argument must be provided");
   }
 
   if (seeds.length > 0) {
@@ -77,10 +77,33 @@ function writeSeeds(dynamodb, tableName, seeds) {
   }
 }
 
+/**
+ * A promise-based function that determines if a file exists
+ * @param {string} fileName The path to the file
+ */
 function fileExists(fileName) {
   return new BbPromise((resolve) => {
     fs.exists(fileName, (exists) => resolve(exists));
   });
+}
+
+/**
+ * Scrapes seed files out of a given location. This file may contain
+ * either a simple json object, or an array of simple json objects. An array
+ * of json objects is returned.
+ *
+ * @param {any} location the filename to read seeds from.
+ */
+function getSeedsAtLocation(location) {
+  // load the file as JSON
+  const result = require(location);
+
+  // Ensure the output is an array
+  if (Array.isArray(result)) {
+    return result;
+  } else {
+    return [ result ];
+  }
 }
 
 /**
@@ -90,24 +113,14 @@ function fileExists(fileName) {
 function locateSeeds(sources = [], cwd = process.cwd()) {
   const locations = sources.map(source => path.join(cwd, source));
   return BbPromise.map(locations, (location) => {
-    return fileExists(location)
-    .then((exists) => {
+    return fileExists(location).then((exists) => {
       if(!exists) {
-        throw new Error('source file ' + location + ' does not exist');
+        throw new Error("source file " + location + " does not exist");
       }
-
-      // load the file as JSON
-      const result = require(location);
-
-      // Ensure the output is an array
-      if (Array.isArray(result)) {
-        return result;
-      } else {
-        return [ result ];
-      }
+      return getSeedsAtLocation(location);
     });
   // Smash the arrays together
-  }).then(seedArrays => [].concat.apply([], seedArrays));
+  }).then((seedArrays) => [].concat.apply([], seedArrays));
 }
 
 module.exports = { writeSeeds, locateSeeds };
