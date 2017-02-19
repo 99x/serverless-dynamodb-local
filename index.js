@@ -159,7 +159,7 @@ class ServerlessDynamodbLocal {
     get tables() {
         const resources = this.service.resources.Resources;
         return Object.keys(resources).map((key) => {
-            if (resources[key].Type == "AWS::DynamoDB::Table") {
+            if (resources[key].Type === "AWS::DynamoDB::Table") {
                 return resources[key].Properties;
             }
         }).filter(n => n);
