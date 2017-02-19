@@ -56,11 +56,11 @@ class ServerlessDynamodbLocal {
                             },
                             migrate: {
                                 shortcut: "m",
-                                usage: "After starting dynamodb local, create DynamoDB tables from the current serverless configuration"
+                                usage: "After starting dynamodb local, create DynamoDB tables from the current serverless configuration."
                             },
                             seed: {
                                 shortcut: "s",
-                                usage: "After starting and migrating dynamodb local, injects seed data into your tables",
+                                usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
                             }
                         }
                     },
@@ -170,7 +170,15 @@ class ServerlessDynamodbLocal {
      */
     get seedSources() {
         const config = this.service.custom.dynamodb;
-        return _.get(config, "start.seeds", []);
+        const seedConfig = _.get(config, "seed", {});
+        const { seed } = this.options;
+        if (!seed) {
+            console.log("No seed option defined. Cannot seed data.")
+            return [];
+        }
+        const categories = seed.split(",");
+        const sourcesByCategory = categories.map(category => seedConfig[category].sources);
+        return [].concat.apply([], sourcesByCategory);
     }
 
     createTable(dynamodb, migration) {

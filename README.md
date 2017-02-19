@@ -52,7 +52,8 @@ All CLI options are optional:
 --sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
---migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration..
+--migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration.
+--seed                    -s  After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.
 ```
 
 All the above options can be added to serverless.yml to set default configuration: e.g.
@@ -63,11 +64,12 @@ custom:
     start:
       port: 8000
       inMemory: true
-      migration: true
+      mirate: true
+      seed: true
 ```
 
 ##  Migrations: sls dynamodb migrate
-### Configurations
+### Configuration
 In `serverless.yml` add following to execute all the migration upon DynamoDB Local Start
 ```yml
 custom:
@@ -92,6 +94,38 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+```
+
+## Seeding: sls dynamodb seed
+### Configuration
+
+In `serverless.yml` seeding categories are defined under `dynamodb.seed`.
+
+If `dynamodb.start.seed` is true, then seeding is performed after table migrations.
+
+```yml
+dynamodb:
+  start:
+    seed: true
+
+  seed:
+    domain:
+      sources:
+        - table: domain-widgets
+          sources: [./domainWidgets.json]
+        - table: domain-fidgets
+          sources: [./domainFidgets.json]
+    test:
+      sources:
+        - table: users
+          sources: [./fake-test-users.json]
+        - table: subscriptions
+          sources: [./fake-test-subscriptions.json]
+```
+
+```bash
+> sls dynamodb seed --seed=domain,test
+> sls dynamodb start --seed=domain,test
 ```
 
 ## Using DynamoDB Local in your code
