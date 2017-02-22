@@ -44,7 +44,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
           resolve();
         }
       }), interval);
-    };
+    }
     execute(interval);
   });
 }
@@ -70,7 +70,7 @@ function writeSeeds(dynamodb, tableName, seeds) {
     const seedChunks = _.chunk(seeds, MAX_MIGRATION_CHUNK);
     return BbPromise.map(
       seedChunks,
-      chunk => writeSeedBatch(dynamodb, tableName, chunk),
+      (chunk) => writeSeedBatch(dynamodb, tableName, chunk),
       { concurrency: MIGRATION_SEED_CONCURRENCY }
     )
       .then(() => console.log("Seed running complete for table: " + tableName));

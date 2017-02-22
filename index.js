@@ -96,7 +96,7 @@ class ServerlessDynamodbLocal {
 
     dynamodbOptions() {
         const { config } = this;
-        const port = _.get(config, 'start.port', 8000);
+        const port = _.get(config, "start.port", 8000);
         const dynamoOptions = {
             endpoint: `http://localhost:${port}`,
             region: "localhost",
@@ -113,7 +113,7 @@ class ServerlessDynamodbLocal {
     migrateHandler() {
         const dynamodb = this.dynamodbOptions();
         const { tables } = this;
-        return BbPromise.each(tables, table => this.createTable(dynamodb, table));
+        return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
     }
 
     seedHandler() {
@@ -121,7 +121,7 @@ class ServerlessDynamodbLocal {
         const { seedSources } = this;
         return BbPromise.each(seedSources, source => {
             if (!source.table) {
-                throw new Error("seeding source 'table' not defined");
+                throw new Error("seeding source \"table\" property not defined");
             }
             return locateSeeds(source.sources || [])
             .then((seeds) => writeSeeds(documentClient, source.table, seeds));
@@ -163,7 +163,7 @@ class ServerlessDynamodbLocal {
             if (resources[key].Type === "AWS::DynamoDB::Table") {
                 return resources[key].Properties;
             }
-        }).filter(n => n);
+        }).filter((n) => n);
     }
 
     /**
@@ -174,11 +174,11 @@ class ServerlessDynamodbLocal {
         const seedConfig = _.get(config, "seed", {});
         const { seed } = this.options;
         if (!seed) {
-            console.log("No seed option defined. Cannot seed data.")
+            console.log("No seed option defined. Cannot seed data.");
             return [];
         }
         const categories = seed.split(",");
-        const sourcesByCategory = categories.map(category => seedConfig[category].sources);
+        const sourcesByCategory = categories.map((category) => seedConfig[category].sources);
         return [].concat.apply([], sourcesByCategory);
     }
 
