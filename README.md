@@ -63,7 +63,7 @@ custom:
     start:
       port: 8000
       inMemory: true
-      migration: true
+      migrate: true
 ```
 
 ##  Migrations: sls dynamodb migrate
