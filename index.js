@@ -119,7 +119,7 @@ class ServerlessDynamodbLocal {
     seedHandler() {
         const { doc: documentClient } = this.dynamodbOptions();
         const { seedSources } = this;
-        return BbPromise.each(seedSources, source => {
+        return BbPromise.each(seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
@@ -129,7 +129,7 @@ class ServerlessDynamodbLocal {
     }
 
     removeHandler() {
-        return new BbPromise(resolve => dynamodbLocal.remove(resolve));
+        return new BbPromise((resolve) => dynamodbLocal.remove(resolve));
     }
 
     installHandler() {
