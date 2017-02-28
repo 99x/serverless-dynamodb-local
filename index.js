@@ -9,6 +9,7 @@ class ServerlessDynamodbLocal {
     constructor(serverless, options) {
         this.serverless = serverless;
         this.service = serverless.service;
+        this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = options;
         this.provider = "aws";
@@ -91,14 +92,19 @@ class ServerlessDynamodbLocal {
             "dynamodb:install:installHandler": this.installHandler.bind(this),
             "dynamodb:start:startHandler": this.startHandler.bind(this),
             "before:offline:start:init": this.startHandler.bind(this),
+            "before:offline:start:end": this.endHandler.bind(this),
         };
     }
 
-    dynamodbOptions() {
+    get port() {
         const config = this.config;
         const port = _.get(config, "start.port", 8000);
+        return port;
+    }
+
+    dynamodbOptions() {
         const dynamoOptions = {
-            endpoint: `http://localhost:${port}`,
+            endpoint: `http://localhost:${this.port}`,
             region: "localhost",
             accessKeyId: "MOCK_ACCESS_KEY_ID",
             secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
@@ -147,11 +153,14 @@ class ServerlessDynamodbLocal {
         );
 
         dynamodbLocal.start(options);
-        console.log(""); // separator
-
         return BbPromise.resolve()
         .then(() => options.migrate && this.migrateHandler())
         .then(() => options.seed && this.seedHandler());
+    }
+
+    endHandler() {
+        this.serverlessLog('DynamoDB - stopping local database');
+        dynamodbLocal.stop(this.port);
     }
 
     /**
@@ -174,7 +183,7 @@ class ServerlessDynamodbLocal {
         const seedConfig = _.get(config, "seed", {});
         const seed = this.options.seed;
         if (!seed) {
-            console.log("No seed option defined. Cannot seed data.");
+            this.serverlessLog("DynamoDB - No seed categories defined. Skipping data seeding.");
             return [];
         }
         const categories = seed.split(",");
@@ -186,10 +195,10 @@ class ServerlessDynamodbLocal {
         return new BbPromise((resolve, reject) => {
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
-                    console.log(err);
+                    this.serverlessLog("DynamoDB - Error - ", err);
                     reject(err);
                 } else {
-                    console.log("Table creation completed for table: " + migration.TableName);
+                    this.serverlessLog("DynamoDB - created table " + migration.TableName);
                     resolve(migration);
                 }
             });
