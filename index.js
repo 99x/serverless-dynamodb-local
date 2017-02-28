@@ -3,7 +3,7 @@ const _ = require("lodash");
 const BbPromise = require("bluebird");
 const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
-const { writeSeeds, locateSeeds } = require("./src/seeder");
+const seeder = require("./src/seeder");
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
@@ -95,7 +95,7 @@ class ServerlessDynamodbLocal {
     }
 
     dynamodbOptions() {
-        const { config } = this;
+        const config = this.config;
         const port = _.get(config, "start.port", 8000);
         const dynamoOptions = {
             endpoint: `http://localhost:${port}`,
@@ -112,19 +112,19 @@ class ServerlessDynamodbLocal {
 
     migrateHandler() {
         const dynamodb = this.dynamodbOptions();
-        const { tables } = this;
+        const tables = this.tables;
         return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
     }
 
     seedHandler() {
-        const { doc: documentClient } = this.dynamodbOptions();
-        const { seedSources } = this;
+        const documentClient = this.dynamodbOptions().doc;
+        const seedSources = this.seedSources;
         return BbPromise.each(seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return locateSeeds(source.sources || [])
-            .then((seeds) => writeSeeds(documentClient, source.table, seeds));
+            return seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
         });
     }
 
@@ -133,12 +133,12 @@ class ServerlessDynamodbLocal {
     }
 
     installHandler() {
-        const { options } = this;
+        const options = this.options;
         return new BbPromise((resolve) => dynamodbLocal.install(resolve, options.localPath));
     }
 
     startHandler() {
-        const { config } = this;
+        const config = this.config;
         const options = _.merge({
                 sharedDb: this.options.sharedDb || true
             },
@@ -172,7 +172,7 @@ class ServerlessDynamodbLocal {
     get seedSources() {
         const config = this.service.custom.dynamodb;
         const seedConfig = _.get(config, "seed", {});
-        const { seed } = this.options;
+        const seed = this.options.seed;
         if (!seed) {
             console.log("No seed option defined. Cannot seed data.");
             return [];
