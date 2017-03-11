@@ -1,73 +1,82 @@
-'use strict';
-
-const _ = require('lodash'),
-    BbPromise = require('bluebird'),
-    AWS = require('aws-sdk'),
-    dynamodbLocal = require('dynamodb-localhost');
+"use strict";
+const _ = require("lodash");
+const BbPromise = require("bluebird");
+const AWS = require("aws-sdk");
+const dynamodbLocal = require("dynamodb-localhost");
+const seeder = require("./src/seeder");
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
         this.serverless = serverless;
         this.service = serverless.service;
+        this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = options;
-        this.provider = 'aws';
+        this.provider = "aws";
         this.commands = {
             dynamodb: {
                 commands: {
                     migrate: {
-                        lifecycleEvents: ['migrateHandler'],
-                        usage: 'Creates local DynamoDB tables from the current Serverless configuration'
+                        lifecycleEvents: ["migrateHandler"],
+                        usage: "Creates local DynamoDB tables from the current Serverless configuration"
+                    },
+                    seed: {
+                        lifecycleEvents: ["seedHandler"],
+                        usage: "Seeds local DynamoDB tables with data"
                     },
                     start: {
-                        lifecycleEvents: ['startHandler'],
-                        usage: 'Starts local DynamoDB',
+                        lifecycleEvents: ["startHandler"],
+                        usage: "Starts local DynamoDB",
                         options: {
                             port: {
-                                shortcut: 'p',
-                                usage: 'The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000'
+                                shortcut: "p",
+                                usage: "The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000"
                             },
                             cors: {
-                                shortcut: 'c',
-                                usage: 'Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated "allow" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.'
+                                shortcut: "c",
+                                usage: "Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated \"allow\" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access."
                             },
                             inMemory: {
-                                shortcut: 'i',
-                                usage: 'DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.'
+                                shortcut: "i",
+                                usage: "DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once."
                             },
                             dbPath: {
-                                shortcut: 'd',
-                                usage: 'The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.'
+                                shortcut: "d",
+                                usage: "The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end."
                             },
                             sharedDb: {
-                                shortcut: 'h',
-                                usage: 'DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.'
+                                shortcut: "h",
+                                usage: "DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration."
                             },
                             delayTransientStatuses: {
-                                shortcut: 't',
-                                usage: 'Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.'
+                                shortcut: "t",
+                                usage: "Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status."
                             },
                             optimizeDbBeforeStartup: {
-                                shortcut: 'o',
-                                usage: 'Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.'
+                                shortcut: "o",
+                                usage: "Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter."
                             },
                             migrate: {
-                                shortcut: 'm',
-                                usage: 'After starting dynamodb local, create DynamoDB tables from the current serverless configuration'
+                                shortcut: "m",
+                                usage: "After starting dynamodb local, create DynamoDB tables from the current serverless configuration."
+                            },
+                            seed: {
+                                shortcut: "s",
+                                usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
                             }
                         }
                     },
                     remove: {
-                        lifecycleEvents: ['removeHandler'],
-                        usage: 'Removes local DynamoDB'
+                        lifecycleEvents: ["removeHandler"],
+                        usage: "Removes local DynamoDB"
                     },
                     install: {
-                        usage: 'Installs local DynamoDB',
-                        lifecycleEvents: ['installHandler'],
+                        usage: "Installs local DynamoDB",
+                        lifecycleEvents: ["installHandler"],
                         options: {
                             localPath: {
-                                shortcut: 'x',
-                                usage: 'Local dynamodb install path'
+                                shortcut: "x",
+                                usage: "Local dynamodb install path"
                             }
                         }
 
@@ -77,23 +86,29 @@ class ServerlessDynamodbLocal {
         };
 
         this.hooks = {
-            'dynamodb:migrate:migrateHandler': this.migrateHandler.bind(this),
-            'dynamodb:remove:removeHandler': this.removeHandler.bind(this),
-            'dynamodb:install:installHandler': this.installHandler.bind(this),
-            'dynamodb:start:startHandler': this.startHandler.bind(this),
-            'before:offline:start': this.startHandler.bind(this),
+            "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
+            "dynamodb:migrate:seedHandler": this.seedHandler.bind(this),
+            "dynamodb:remove:removeHandler": this.removeHandler.bind(this),
+            "dynamodb:install:installHandler": this.installHandler.bind(this),
+            "dynamodb:start:startHandler": this.startHandler.bind(this),
+            "before:offline:start:init": this.startHandler.bind(this),
+            "before:offline:start:end": this.endHandler.bind(this),
         };
     }
 
+    get port() {
+        const config = this.config;
+        const port = _.get(config, "start.port", 8000);
+        return port;
+    }
+
     dynamodbOptions() {
-        let self = this;
-        let port = self.config.start && self.config.start.port || 8000,
-            dynamoOptions = {
-                endpoint: 'http://localhost:' + port,
-                region: 'localhost',
-                accessKeyId: 'MOCK_ACCESS_KEY_ID',
-                secretAccessKey: 'MOCK_SECRET_ACCESS_KEY'
-            };
+        const dynamoOptions = {
+            endpoint: `http://localhost:${this.port}`,
+            region: "localhost",
+            accessKeyId: "MOCK_ACCESS_KEY_ID",
+            secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
+        };
 
         return {
             raw: new AWS.DynamoDB(dynamoOptions),
@@ -102,74 +117,90 @@ class ServerlessDynamodbLocal {
     }
 
     migrateHandler() {
-        let self = this;
+        const dynamodb = this.dynamodbOptions();
+        const tables = this.tables;
+        return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
+    }
 
-        return new BbPromise(function (resolve, reject) {
-            let dynamodb = self.dynamodbOptions();
-
-            var tables = self.resourceTables();
-
-            return BbPromise.each(tables, function (table) {
-                return self.createTable(dynamodb, table);
-            }).then(resolve, reject);
+    seedHandler() {
+        const documentClient = this.dynamodbOptions().doc;
+        const seedSources = this.seedSources;
+        return BbPromise.each(seedSources, (source) => {
+            if (!source.table) {
+                throw new Error("seeding source \"table\" property not defined");
+            }
+            return seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
         });
     }
 
     removeHandler() {
-        return new BbPromise(function (resolve) {
-            dynamodbLocal.remove(resolve);
-        });
+        return new BbPromise((resolve) => dynamodbLocal.remove(resolve));
     }
 
     installHandler() {
-        let options = this.options;
-        return new BbPromise(function (resolve) {
-            dynamodbLocal.install(resolve, options.localPath);
-        });
+        const options = this.options;
+        return new BbPromise((resolve) => dynamodbLocal.install(resolve, options.localPath));
     }
 
     startHandler() {
-        let self = this;
-        return new BbPromise(function (resolve) {
-            let options = _.merge({
-                        sharedDb: self.options.sharedDb || true
-                    },
-                    self.options,
-                    self.config && self.config.start
-                );
-            if (options.migrate) {
-                dynamodbLocal.start(options);
-                console.log(""); // seperator
-                self.migrateHandler(true);
-                resolve();
-            } else {
-                dynamodbLocal.start(options);
-                console.log("");
-                resolve();
-            }
-        });
+        const config = this.config;
+        const options = _.merge({
+                sharedDb: this.options.sharedDb || true
+            },
+            this.options,
+            config && config.start
+        );
+
+        dynamodbLocal.start(options);
+        return BbPromise.resolve()
+        .then(() => options.migrate && this.migrateHandler())
+        .then(() => options.seed && this.seedHandler());
     }
 
-    resourceTables() {
-        var resources = this.service.resources.Resources;
-        return Object.keys(resources).map(function (key) {
-            if (resources[key].Type == 'AWS::DynamoDB::Table') {
+    endHandler() {
+        this.serverlessLog('DynamoDB - stopping local database');
+        dynamodbLocal.stop(this.port);
+    }
+
+    /**
+     * Gets the table definitions
+     */
+    get tables() {
+        const resources = this.service.resources.Resources;
+        return Object.keys(resources).map((key) => {
+            if (resources[key].Type === "AWS::DynamoDB::Table") {
                 return resources[key].Properties;
             }
-        }).filter(n => {
-            return n;
-        });
+        }).filter((n) => n);
+    }
+
+    /**
+     * Gets the seeding sources
+     */
+    get seedSources() {
+        const config = this.service.custom.dynamodb;
+        const seedConfig = _.get(config, "seed", {});
+        const seed = this.options.seed;
+        if (!seed) {
+            this.serverlessLog("DynamoDB - No seed categories defined. Skipping data seeding.");
+            return [];
+        }
+        const categories = seed.split(",");
+        const sourcesByCategory = categories.map((category) => seedConfig[category].sources);
+        return [].concat.apply([], sourcesByCategory);
     }
 
     createTable(dynamodb, migration) {
-        return new BbPromise(function (resolve) {
-            dynamodb.raw.createTable(migration, function (err) {
+        return new BbPromise((resolve, reject) => {
+            dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
-                    console.log(err);
+                    this.serverlessLog("DynamoDB - Error - ", err);
+                    reject(err);
                 } else {
-                    console.log("Table creation completed for table: " + migration.TableName);
+                    this.serverlessLog("DynamoDB - created table " + migration.TableName);
+                    resolve(migration);
                 }
-                resolve(migration);
             });
         });
     }
