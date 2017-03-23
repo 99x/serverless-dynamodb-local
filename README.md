@@ -164,7 +164,11 @@ plugins:
 
 Make sure that `serverless-dynamodb-local` is above `serverless-offline` so it will be loaded earlier.
 
-Now your local DynamoDB database will be automatically started before running `serverless offline`.
+Now your local DynamoDB database will be automatically started before running `serverless offline`.  If you don't want DynamoDB to be automatically started, add the following to your `serverless.yml`:
+```
+dynamodb:
+    nostart: true
+```
 
 ## Reference Project
 * [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
