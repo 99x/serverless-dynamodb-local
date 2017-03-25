@@ -87,7 +87,7 @@ class ServerlessDynamodbLocal {
 
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
-            "dynamodb:migrate:seedHandler": this.seedHandler.bind(this),
+            "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
             "dynamodb:remove:removeHandler": this.removeHandler.bind(this),
             "dynamodb:install:installHandler": this.installHandler.bind(this),
             "dynamodb:start:startHandler": this.startHandler.bind(this),
