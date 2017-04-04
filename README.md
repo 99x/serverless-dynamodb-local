@@ -127,6 +127,17 @@ dynamodb:
 > sls dynamodb start --seed=domain,test
 ```
 
+If seed config is set to true, your configuration will be seeded automatically on startup. You can also put the seed to false to prevent initial seeding to use manual seeding via cli.
+
+```fake-test-users.json example
+[
+  {
+    "id": "John",
+    "name": "Doe",
+  },
+]
+```
+
 ## Using DynamoDB Local in your code
 You need to add the following parameters to the AWS NODE SDK dynamodb constructor
 
