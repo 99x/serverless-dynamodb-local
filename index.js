@@ -148,8 +148,8 @@ class ServerlessDynamodbLocal {
         const options = _.merge({
                 sharedDb: this.options.sharedDb || true
             },
-            this.options,
-            config && config.start
+            config && config.start,
+            this.options
         );
 
         dynamodbLocal.start(options);
@@ -181,12 +181,16 @@ class ServerlessDynamodbLocal {
     get seedSources() {
         const config = this.service.custom.dynamodb;
         const seedConfig = _.get(config, "seed", {});
-        const seed = this.options.seed || Object.keys(seedConfig).join(',');
-        if (!seed) {
-            this.serverlessLog("DynamoDB - No seed categories defined. Skipping data seeding.");
+        const seed = this.options.seed;
+        let categories;
+        if (typeof seed === "string") {
+            categories = seed.split(",");
+        } else if(seed) {
+            categories = Object.keys(seedConfig);
+        } else { // if (!seed)
+            this.serverlessLog("DynamoDB - No seeding defined. Skipping data seeding.");
             return [];
         }
-        const categories = seed.split(",");
         const sourcesByCategory = categories.map((category) => seedConfig[category].sources);
         return [].concat.apply([], sourcesByCategory);
     }
