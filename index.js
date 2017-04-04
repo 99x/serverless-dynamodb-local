@@ -181,7 +181,7 @@ class ServerlessDynamodbLocal {
     get seedSources() {
         const config = this.service.custom.dynamodb;
         const seedConfig = _.get(config, "seed", {});
-        const seed = this.options.seed ? this.options.seed : Object.keys(seedConfig).join(',');
+        const seed = this.options.seed || Object.keys(seedConfig).join(',');
         if (!seed) {
             this.serverlessLog("DynamoDB - No seed categories defined. Skipping data seeding.");
             return [];
