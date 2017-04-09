@@ -185,7 +185,7 @@ class ServerlessDynamodbLocal {
         let categories;
         if (typeof seed === "string") {
             categories = seed.split(",");
-        } else if(seed) {
+        } else if(seedConfig) {
             categories = Object.keys(seedConfig);
         } else { // if (!seed)
             this.serverlessLog("DynamoDB - No seeding defined. Skipping data seeding.");
