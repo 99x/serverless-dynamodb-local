@@ -101,10 +101,25 @@ function getSeedsAtLocation(location) {
 
   // Ensure the output is an array
   if (Array.isArray(result)) {
-    return result;
+    return _.forEach(result, unmarshalBuffer);
   } else {
-    return [ result ];
+    return [ unmarshalBuffer(result) ];
   }
+}
+
+/**
+ * Transform all selerialized Buffer value in a Buffer value inside a json object
+ *
+ * @param {json} json with serialized Buffer value.
+ * @return {json} json with Buffer object.
+ */
+function unmarshalBuffer(json) {
+  _.forEach(json, function(value, key) {
+    if (value.type==='Buffer') {
+      json[key]= new Buffer(value.data);
+    }
+  });
+  return json;
 }
 
 /**
