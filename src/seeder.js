@@ -89,6 +89,21 @@ function fileExists(fileName) {
 }
 
 /**
+ * Transform all selerialized Buffer value in a Buffer value inside a json object
+ *
+ * @param {json} json with serialized Buffer value.
+ * @return {json} json with Buffer object.
+ */
+function unmarshalBuffer(json) {
+  _.forEach(json, function(value, key) {
+    if (value.type==="Buffer") {
+      json[key]= new Buffer(value.data);
+    }
+  });
+  return json;
+}
+
+/**
  * Scrapes seed files out of a given location. This file may contain
  * either a simple json object, or an array of simple json objects. An array
  * of json objects is returned.
@@ -105,21 +120,6 @@ function getSeedsAtLocation(location) {
   } else {
     return [ unmarshalBuffer(result) ];
   }
-}
-
-/**
- * Transform all selerialized Buffer value in a Buffer value inside a json object
- *
- * @param {json} json with serialized Buffer value.
- * @return {json} json with Buffer object.
- */
-function unmarshalBuffer(json) {
-  _.forEach(json, function(value, key) {
-    if (value.type==='Buffer') {
-      json[key]= new Buffer(value.data);
-    }
-  });
-  return json;
 }
 
 /**
