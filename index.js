@@ -163,16 +163,46 @@ class ServerlessDynamodbLocal {
         dynamodbLocal.stop(this.port);
     }
 
+    extractTableResources(resources) {
+      return Object.keys(resources).map((key) => {
+          if (resources[key].Type === "AWS::DynamoDB::Table") {
+              return resources[key].Properties;
+          }
+      }).filter((n) => n);
+    }
+
     /**
      * Gets the table definitions
      */
     get tables() {
-        const resources = this.service.resources.Resources;
-        return Object.keys(resources).map((key) => {
-            if (resources[key].Type === "AWS::DynamoDB::Table") {
-                return resources[key].Properties;
+        let foundTables = this.extractTableResources(this.service.resources.Resources);
+        if (foundTables.length === 0) {
+          this.serverlessLog("DynamoDB - no tables defined in resources.");
+        }
+        if (this.service.plugins) {
+          this.serverlessLog("DynamoDB - checking plugins for additional stack plugin");
+          const result = _.indexOf(this.service.plugins, "serverless-plugin-additional-stacks", true);
+          if (result != -1) {
+            this.serverlessLog("DynamoDB - additional stacks plugin found.");
+            if (!_.isUndefined(this.service.custom) && !_.isUndefined(this.service.custom.additionalStacks)) {
+              this.serverlessLog("DynamoDB - additional stacks section found in custom.");
+              const additionalStacks = this.service.custom.additionalStacks;
+              const additionalStacksTables = Object.keys(additionalStacks).map((key) => {
+                  return this.extractTableResources(additionalStacks[key].Resources)
+              });
+
+              if (additionalStacksTables.length > 0) {
+                  let flatten = [].concat.apply([], additionalStacksTables);
+                  foundTables = foundTables.concat(flatten);
+              }
             }
-        }).filter((n) => n);
+          }
+        }
+
+        foundTables.forEach((table) => {
+          this.serverlessLog("DynamoDB - found table: " + table["TableName"]);
+        })
+        return foundTables;
     }
 
     /**
