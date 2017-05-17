@@ -181,7 +181,7 @@ class ServerlessDynamodbLocal {
     get seedSources() {
         const config = this.service.custom.dynamodb;
         const seedConfig = _.get(config, "seed", {});
-        const seed = this.options.seed;
+        const seed = this.options.seed || config.start.seed;
         let categories;
         if (typeof seed === "string") {
             categories = seed.split(",");
