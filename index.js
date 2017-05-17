@@ -197,6 +197,9 @@ class ServerlessDynamodbLocal {
 
     createTable(dynamodb, migration) {
         return new BbPromise((resolve, reject) => {
+            if (migration.StreamSpecification && migration.StreamSpecification.StreamViewType) {
+                migration.StreamSpecification.StreamEnabled = true;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     this.serverlessLog("DynamoDB - Error - ", err);
