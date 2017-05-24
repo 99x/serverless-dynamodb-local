@@ -152,6 +152,10 @@ class ServerlessDynamodbLocal {
             this.options
         );
 
+        if (config && config.nostart) {
+            return;
+        }
+
         dynamodbLocal.start(options);
         return BbPromise.resolve()
         .then(() => options.migrate && this.migrateHandler())
@@ -159,6 +163,10 @@ class ServerlessDynamodbLocal {
     }
 
     endHandler() {
+        if (this.config && this.config.nostart) {
+            return;
+        }
+
         this.serverlessLog('DynamoDB - stopping local database');
         dynamodbLocal.stop(this.port);
     }
