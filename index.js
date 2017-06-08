@@ -102,9 +102,15 @@ class ServerlessDynamodbLocal {
         return port;
     }
 
+    get host() {
+        const config = this.config;
+        const host = _.get(config, "start.host", "localhost");
+        return host;
+    }
+
     dynamodbOptions() {
         const dynamoOptions = {
-            endpoint: `http://localhost:${this.port}`,
+            endpoint: `http://${this.host}:${this.port}`,
             region: "localhost",
             accessKeyId: "MOCK_ACCESS_KEY_ID",
             secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
