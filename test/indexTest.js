@@ -6,17 +6,7 @@ var util = require("util");
 var assert = require('chai').assert;
 var config = require('../index');
 
-var config
-
 describe('Unit Test', function () {
-    it('Check the port', function () {
-        request.get('http://google.lk', function (err, response, body) {
-            response.statusCode.should.equal(200);
-            body.should.include("Test Success");
-            done();
-        })
-    });
-
     it('Check endpoint', function () {
         before(function () {
             config.listen(8989);
