@@ -28,9 +28,9 @@ describe("Port",function(){
   });
 
   it("Port value should be >= 0 and < 65536", function () {
-  http.get("http://localhost:8000", function (response) {
-    assert.equal(response.statusCode, 200);
-    done();
+    http.get("http://localhost:8000", function (response) {
+     assert.equal(response.statusCode, 200);
+     done();
     });
   });
 });
@@ -47,7 +47,7 @@ describe("Check the dynamodb function", function(){
        server = dynamodbOptions.listen(port);
      }); 
      after(function () {
-     assert.ok;
+      assert.ok;
      });
     });
   
