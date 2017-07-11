@@ -1,83 +1,79 @@
-var should = require("should");
-var request = require("request");
-var expect = require("chai").expect;
-var util = require("util");
-var http = require ("http");
+//Define the modules required to mocha testing
+const assert = require("chai").assert;
+const http = require ("http");
+const expect = require("chai").expect;
+const should = require("should");
+let aws = require ("aws-sdk");
 
-var assert = require('chai').assert;
+//Invoke the functions in the index.js
+let port = require("../index.js").port;
+let dynamodbOptions = require("../index.js").dynamodbOptions;
+const migrateHandler = require("../index.js").migrateHandler;
+const seedHanlder = require("../index.js").seedHanlder;
+const removeHandler = require("../index.js").removeHandler;
+const startHandler = require("../index.js").startHandler;
+const endHandler = require("../index.js").endHandler;
+const tables = require("../index.js").tables;
+const seedSources = require("../index.js").seedSources;
+const createTable = require("../index.js").createTable;
+const seed = require("../src/seeder.js");
 
-var config = require("../index").port
-var seed = require("../src/seeder.js");
+aws.config.update({ accessKeyId: "MOCK_ACCESS_KEY_ID", secretAccessKey: "MOCK_SECRET_ACCESS_KEY", region: "localhost",  });
+let db = new aws.DynamoDB({ endpoint: "http://localhost:8000" });
 
-/*
-var port = require("../index").port
-var dynamodbOptions = require("../index").dynamodbOptions;
-var migrateHandler = require("../index").migrateHandler;
-var seedHanlder = require("../index").seedHanlder;
-var removeHandler = require("../index").removeHandler;
-var startHandler = require("../index").startHandler;
-var endHandler = require("../index").endHandler;
-var tables = require("../index").tables;
-var seedSources = require("../index").seedSources;
-var createTable = require("../index").createTable;
-*/
+//Test cases to check the get port function
+describe("Port",function(){
+  it("Port should return number", function(){    
+    assert(typeof port, 'number');
+  });
 
+  it("Port value should be >= 0 and < 65536", function () {
+  http.get("http://localhost:8000", function (response) {
+    assert.equal(response.statusCode, 200);
+    done();
+    });
+  });
+});
 
-describe("Unit Test", function () {
+//Testing the dynamodb options function
+describe("Check the dynamodb function", function(){
+  it("Check region is localhost",function(){
+    expect((dynamodbOptions,{region: "localhost"})).to.deep.include({region: "localhost"});
+  });
+
+  it("Check endpoint listens to the port", function () {
+     let server;
+     before(function () {
+       server = dynamodbOptions.listen(port);
+     }); 
+     after(function () {
+     assert.ok;
+     });
+    });
+  
+  it("Check whether Raw is an object", function(){    
+  let dynamoOptions = new Object;
+  let raw = new aws.DynamoDB(dynamoOptions);
+  raw.should.be.type('object');
+  });
    
-    it("Check the port", function () {
-        port =(config, "start.port", 8000);
-    });
-    
-    it("Check the port", function () {
-        http.get("http://localhost:8000", function (response) {
-                assert.equal(response.statusCode, 200);
-                console.log(port)
-                done();
-        })
-    });
-
-    it("Check timeout test to 1000ms", () => {
-        this.timeout(1000);
-        assert.ok(true);
-    });
+  it("Check whether doc is an object", function(){    
+  let dynamoOptions =  new Object;
+  let doc = new aws.DynamoDB(dynamoOptions);
+  doc.should.be.type('object');
+  });
 });
 
-/*
-describe("Server status and Message", function () {
-      it("status response should be equal 200", function (done) {
-            http.get("http://localhost:8000", function (response) {
-                  assert.equal(response.statusCode, 200);
-                  done();
-            });
-       });
-});
-*/
-
-describe("End point", function(){
-       it("Check endpoint", function () {
-        before(function () {
-            config.listen(8000);
-        });
-        after(function () {
-            console.log('after');
-        });
-    });
-
-       it("dynamoOptions Check", function(){
-            const dynamoOptions = {
-            endpoint: `http://localhost:${this.port}`,
-            region: "localhost",
-            accessKeyId: "MOCK_ACCESS_KEY_ID",
-            secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
-            };
-       });
+describe ("Check the table function", function(){
+  it('Existance of the table', function(done) {
+  let table = tables.get(name);
+  true.should.be.ok;
+  });
 });
 
-describe("migrateHandler Check", function(){
-    it("migrateHandler check values", function(){
-        const dynamodb = this.dynamodbOptions();
-        const tables = this.tables;
-        return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
-    });
+describe ("Check the Seeder file", function(){
+  it("Check whether table name is a string", function(){
+  let tableName1 = seed.writeSeeds.name;
+  expect(tableName1).to.be.a('string');
+  });
 });
