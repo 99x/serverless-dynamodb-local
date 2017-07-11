@@ -17,14 +17,16 @@ const tables = require("../index.js").tables;
 const seedSources = require("../index.js").seedSources;
 const createTable = require("../index.js").createTable;
 const seed = require("../src/seeder.js");
+const dataApp = require("../index.js");
 
-aws.config.update({ accessKeyId: "MOCK_ACCESS_KEY_ID", secretAccessKey: "MOCK_SECRET_ACCESS_KEY", region: "localhost",  });
-let db = new aws.DynamoDB({ endpoint: "http://localhost:8000" });
+//aws.config.update({ accessKeyId: "MOCK_ACCESS_KEY_ID", secretAccessKey: "MOCK_SECRET_ACCESS_KEY", region: "localhost",  });
+//let db = new aws.DynamoDB({ endpoint: "http://localhost:8000" });
 
 //Test cases to check the get port function
 describe("Port",function(){
   it("Port should return number", function(){    
-    assert(typeof port, 'number');
+    let myport = dataApp.prototype.port;   
+    assert(typeof myport, 'number');
   });
 
   it("Port value should be >= 0 and < 65536", function () {
@@ -52,22 +54,15 @@ describe("Check the dynamodb function", function(){
     });
   
   it("Check whether Raw is an object", function(){    
-    let dynamoOptions = new Object;
+    let dynamoOptions = dataApp.prototype.dynamodbOptions;
     let raw = new aws.DynamoDB(dynamoOptions);
     raw.should.be.type('object');
   });
    
   it("Check whether doc is an object", function(){    
-    let dynamoOptions =  new Object;
+    let dynamoOptions =  dataApp.prototype.dynamodbOptions;
     let doc = new aws.DynamoDB(dynamoOptions);
     doc.should.be.type('object');
-  });
-});
-
-describe ("Check the table function", function(){
-  it('Existance of the table', function(done) {
-    let table = tables.get(name);
-    true.should.be.ok;
   });
 });
 
@@ -75,5 +70,13 @@ describe ("Check the Seeder file", function(){
   it("Check whether table name is a string", function(){
     let tableName1 = seed.writeSeeds.name;
     expect(tableName1).to.be.a('string');
+  });
+});
+
+describe ("Check seedSources function", function(){
+  it ("Check seeds is a string",function(){
+    const seed = "testing";
+    let seedTest = dataApp.prototype.seedSources(seed);
+    assert.typeOf(seedTest,'string');    
   });
 });
