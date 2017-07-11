@@ -52,28 +52,28 @@ describe("Check the dynamodb function", function(){
     });
   
   it("Check whether Raw is an object", function(){    
-  let dynamoOptions = new Object;
-  let raw = new aws.DynamoDB(dynamoOptions);
-  raw.should.be.type('object');
+    let dynamoOptions = new Object;
+    let raw = new aws.DynamoDB(dynamoOptions);
+    raw.should.be.type('object');
   });
    
   it("Check whether doc is an object", function(){    
-  let dynamoOptions =  new Object;
-  let doc = new aws.DynamoDB(dynamoOptions);
-  doc.should.be.type('object');
+    let dynamoOptions =  new Object;
+    let doc = new aws.DynamoDB(dynamoOptions);
+    doc.should.be.type('object');
   });
 });
 
 describe ("Check the table function", function(){
   it('Existance of the table', function(done) {
-  let table = tables.get(name);
-  true.should.be.ok;
+    let table = tables.get(name);
+    true.should.be.ok;
   });
 });
 
 describe ("Check the Seeder file", function(){
   it("Check whether table name is a string", function(){
-  let tableName1 = seed.writeSeeds.name;
-  expect(tableName1).to.be.a('string');
+    let tableName1 = seed.writeSeeds.name;
+    expect(tableName1).to.be.a('string');
   });
 });
