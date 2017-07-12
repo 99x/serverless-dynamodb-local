@@ -19,9 +19,6 @@ const createTable = require("../index.js").createTable;
 const seed = require("../src/seeder.js");
 const dataApp = require("../index.js");
 
-//aws.config.update({ accessKeyId: "MOCK_ACCESS_KEY_ID", secretAccessKey: "MOCK_SECRET_ACCESS_KEY", region: "localhost",  });
-//let db = new aws.DynamoDB({ endpoint: "http://localhost:8000" });
-
 //Test cases to check the get port function
 describe("Port",function(){
   it("Port should return number", function(){    
@@ -39,11 +36,11 @@ describe("Port",function(){
 
 //Testing the dynamodb options function
 describe("Check the dynamodb function", function(){
-  it("Check region is localhost",function(){
+  it("Region should be localhost",function(){
     expect((dynamodbOptions,{region: "localhost"})).to.deep.include({region: "localhost"});
   });
 
-  it("Check endpoint listens to the port", function () {
+  it("Should listen to endpoint", function () {
      let server;
      before(function () {
        server = dynamodbOptions.listen(port);
@@ -53,13 +50,13 @@ describe("Check the dynamodb function", function(){
      });
     });
   
-  it("Check whether Raw is an object", function(){    
+  it("Raw should be an object", function(){    
     let dynamoOptions = dataApp.prototype.dynamodbOptions;
     let raw = new aws.DynamoDB(dynamoOptions);
     raw.should.be.type('object');
   });
    
-  it("Check whether doc is an object", function(){    
+  it("Doc should be an object", function(){    
     let dynamoOptions =  dataApp.prototype.dynamodbOptions;
     let doc = new aws.DynamoDB(dynamoOptions);
     doc.should.be.type('object');
@@ -67,14 +64,14 @@ describe("Check the dynamodb function", function(){
 });
 
 describe ("Check the Seeder file", function(){
-  it("Check whether table name is a string", function(){
+  it("Table name should be a string", function(){
     let tableName1 = seed.writeSeeds.name;
     expect(tableName1).to.be.a('string');
   });
 });
 
 describe ("Check seedSources function", function(){
-  it ("Check seeds is a string",function(){
+  it ("Seeds should be string",function(){
     const seed = "testing";
     let seedTest = dataApp.prototype.seedSources(seed);
     assert.typeOf(seedTest,'string');    
