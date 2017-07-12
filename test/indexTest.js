@@ -23,11 +23,11 @@ const dataApp = require("../index.js");
 describe("Port",function(){
   it("Port should return number", function(){    
     let myport = dataApp.prototype.port;   
-    assert(typeof myport, 'number');
+    assert(typeof myport, "number");
   });
 
   it("Port value should be >= 0 and < 65536", function () {
-    http.get("http://localhost:8000", function (response) {
+    http.get(dataApp.prototype.port, function (response) {
      assert.equal(response.statusCode, 200);
      done();
     });
@@ -36,10 +36,6 @@ describe("Port",function(){
 
 //Testing the dynamodb options function
 describe("Check the dynamodb function", function(){
-  it("Region should be localhost",function(){
-    expect((dynamodbOptions,{region: "localhost"})).to.deep.include({region: "localhost"});
-  });
-
   it("Should listen to endpoint", function () {
      let server;
      before(function () {
@@ -53,20 +49,20 @@ describe("Check the dynamodb function", function(){
   it("Raw should be an object", function(){    
     let dynamoOptions = dataApp.prototype.dynamodbOptions;
     let raw = new aws.DynamoDB(dynamoOptions);
-    raw.should.be.type('object');
+    raw.should.be.type("object");
   });
    
   it("Doc should be an object", function(){    
     let dynamoOptions =  dataApp.prototype.dynamodbOptions;
     let doc = new aws.DynamoDB(dynamoOptions);
-    doc.should.be.type('object');
+    doc.should.be.type("object");
   });
 });
-
+//Testing the seeder.js file write seeds
 describe ("Check the Seeder file", function(){
   it("Table name should be a string", function(){
     let tableName1 = seed.writeSeeds.name;
-    expect(tableName1).to.be.a('string');
+    expect(tableName1).to.be.a("string");
   });
 });
 
@@ -74,6 +70,6 @@ describe ("Check seedSources function", function(){
   it ("Seeds should be string",function(){
     const seed = "testing";
     let seedTest = dataApp.prototype.seedSources(seed);
-    assert.typeOf(seedTest,'string');    
+    assert.typeOf(seedTest,"string");    
   });
 });
