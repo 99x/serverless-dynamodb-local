@@ -200,6 +200,9 @@ class ServerlessDynamodbLocal {
             if (migration.StreamSpecification && migration.StreamSpecification.StreamViewType) {
                 migration.StreamSpecification.StreamEnabled = true;
             }
+            if (migration.TimeToLiveSpecification) {
+              delete migration.TimeToLiveSpecification;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     this.serverlessLog("DynamoDB - Error - ", err);
