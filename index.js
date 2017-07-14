@@ -199,7 +199,7 @@ class ServerlessDynamodbLocal {
             stacks = stacks.concat(this.getAdditionalStacks());
         }
 
-        return stacks.map(stack => this.getTableDefinitionsFromStack(stack)).reduce((tables, tablesInStack) => tables.concat(tablesInStack), []);
+        return stacks.map((stack) => this.getTableDefinitionsFromStack(stack)).reduce((tables, tablesInStack) => tables.concat(tablesInStack), []);
     }
 
     /**
