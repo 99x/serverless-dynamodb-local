@@ -163,16 +163,43 @@ class ServerlessDynamodbLocal {
         dynamodbLocal.stop(this.port);
     }
 
-    /**
-     * Gets the table definitions
-     */
-    get tables() {
-        const resources = this.service.resources.Resources;
+    getDefaultStack() {
+        return _.get(this.service, "resources");
+    }
+
+    getAdditionalStacks() {
+        return _.values(_.get(this.service, "custom.additionalStacks", {}));
+    }
+
+    hasAdditionalStacksPlugin() {
+        return _.get(this.service, "plugins", []).includes("serverless-plugin-additional-stacks");
+    }
+
+    getTableDefinitionsFromStack(stack) {
+        const resources = _.get(stack, "Resources", []);
         return Object.keys(resources).map((key) => {
             if (resources[key].Type === "AWS::DynamoDB::Table") {
                 return resources[key].Properties;
             }
         }).filter((n) => n);
+    }
+
+    /**
+     * Gets the table definitions
+     */
+    get tables() {
+        let stacks = [];
+
+        const defaultStack = this.getDefaultStack();
+        if (defaultStack) {
+            stacks.push(defaultStack);
+        }
+
+        if (this.hasAdditionalStacksPlugin()) {
+            stacks = stacks.concat(this.getAdditionalStacks());
+        }
+
+        return stacks.map(stack => this.getTableDefinitionsFromStack(stack)).reduce((tables, tablesInStack) => tables.concat(tablesInStack), []);
     }
 
     /**
