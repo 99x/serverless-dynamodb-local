@@ -6,8 +6,6 @@ sudo: false
 
 install:
   - npm install -g serverless@1.0.0-rc.1
-  - npm install serverless-offline --save-dev
-  - npm install --save serverless-dynamodb-local
   - npm install --save dynamodb-doc-client-wrapper
   - npm install --save-dev mocha
   - npm install aws-sdk
