@@ -4,26 +4,23 @@ node_js:
 
 sudo: false
 
-before_install:
-  - npm init
-
 install:
-  - git clone https://github.com/lakindu95/serverless-dynamodb-local.git
   - npm install -g serverless@1.0.0-rc.1
   - npm install aws-sdk
   - serverless create --template aws-nodejs
-  - npm install serverless-offline --save-dev
+  - npm link
+  - cd node_modules/dynamodb-localhost
+  - npm link serverless-dynamodb-local
+  - npm install --save-dev serverless-offline 
   - npm install --save dynamodb-doc-client-wrapper
-  - npm install --save serverless-dynamodb-local
   - npm install --save-dev mocha
-  - npm install should --save-dev
+  - npm install --save-dev should
   - npm install --save expect
   - npm install --save request
   - npm install --save chai
   - travis_retry npm install
 
 before_script:
-
   - sls dynamodb install
   - sls dynamodb start
   
