@@ -9,13 +9,13 @@ before_install:
   - mkdir sample-template
   - cd sample-template
   - npm init --yes
-  - serverless create --template aws-nodejs
 
 install:
   - npm install --save-dev serverless-offline 
   - npm install -g serverless@1.0.0-rc.1
   - npm install aws-sdk
   - npm install --save dynamodb-doc-client-wrapper
+  - serverless create --template aws-nodejs
   - cd ..
   - cd ..
   - npm link
