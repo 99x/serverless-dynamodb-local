@@ -11,6 +11,8 @@ install:
   - npm link
   - cd node_modules/dynamodb-localhost
   - npm link serverless-dynamodb-local
+  - cd ..
+  - cd ..
   - npm install --save-dev serverless-offline 
   - npm install --save dynamodb-doc-client-wrapper
   - npm install --save-dev mocha
