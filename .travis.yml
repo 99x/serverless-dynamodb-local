@@ -13,6 +13,9 @@ install:
   - npm link serverless-dynamodb-local
   - npm install --save-dev serverless-offline 
   - npm install --save dynamodb-doc-client-wrapper
+  - echo Plugins: >> serverless.yml
+  - echo - serverless-offline >> serverless.yml
+  - echo - serverless-dynamodb-local >> serverless.yml
   - npm install --save-dev mocha
   - npm install --save-dev should
   - npm install --save expect
