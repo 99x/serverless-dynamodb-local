@@ -5,38 +5,39 @@ node_js:
 sudo: false
 
 before_install:
-  - mkdir serverless-template
-  - cd serverless-template
+  - cd test
+  - mkdir sample-template
+  - cd sample-template
   - npm init --yes
+  - serverless create --template aws-nodejs
 
 install:
   - npm install --save-dev serverless-offline 
   - npm install -g serverless@1.0.0-rc.1
   - npm install aws-sdk
   - npm install --save dynamodb-doc-client-wrapper
-  - npm install --save serverless-dynamodb-local
-  - cd serverless-dynamodb-local
+  - cd ..
+  - cd ..
   - npm link
-  - cd node_modules/dynamodb-localhost
+  - cd test/sample-template/node_modules
   - npm link serverless-dynamodb-local
   - cd ..
+  - sed -i '18 a plugins:' serverless.yml
+  - sed -i '19 a - serverless-offline' serverless.yml
+  - sed -i '20 a - serverless-dynamodb-local' serverless.yml
   - cd ..
   - cd ..
-  - serverless create --template aws-nodejs
   - npm install --save-dev mocha
   - npm install --save-dev should
   - npm install --save expect
   - npm install --save request
   - npm install --save chai
   - travis_retry npm install
-  - ls
+  - cd test/sample-template
 
 before_script:
-  - sed -i '18 a plugins:' serverless.yml
-  - sed -i '19 a - serverless-offline' serverless.yml
-  - sed -i '20 a - serverless-dynamodb-local' serverless.yml
   - sls dynamodb install
-  - sls dynamodb start
+  - sls dynamodb start --migrate
   
 script:
   - npm test
