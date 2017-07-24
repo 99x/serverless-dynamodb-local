@@ -19,6 +19,7 @@ install:
   - npm install --save request
   - npm install --save chai
   - travis_retry npm install
+  - ls
 
 before_script:
   - sed -i '18 a Plugins:' serverless.yml
