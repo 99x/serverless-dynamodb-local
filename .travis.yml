@@ -21,9 +21,9 @@ install:
   - travis_retry npm install
 
 before_script:
-  - sed -i '71Plugins:' serverless.yml
-  - sed -i '72- serverless-offline' serverless.yml
-  - sed -i '73- serverless-dynamodb-local' serverless.yml
+  - sed -i '18 a Plugins:' serverless.yml
+  - sed -i '19 a - serverless-offline' serverless.yml
+  - sed -i '20 a - serverless-dynamodb-local' serverless.yml
   - sls dynamodb install
   - sls dynamodb start
   
