@@ -38,6 +38,7 @@ install:
 before_script:
   - sls dynamodb install
   - sls dynamodb start
+  - npm run test
   
 script:
   - npm test
