@@ -37,7 +37,9 @@ install:
 
 before_script:
   - sls dynamodb install
-  - sls dynamodb start --migrate
+  - sls dynamodb start --detached
+  - cd ..
+  - cd ..
   - npm run test
   
 script:
