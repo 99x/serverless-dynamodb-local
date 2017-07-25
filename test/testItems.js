@@ -1,3 +1,4 @@
+"use strict";
 const assert = require("chai").assert;
 const http = require ("http");
 const expect = require("chai").expect;
