@@ -1,3 +1,4 @@
+"use strict";
 //Define the modules required to mocha testing
 const assert = require("chai").assert;
 const http = require ("http");
