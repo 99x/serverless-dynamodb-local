@@ -52,13 +52,6 @@ describe ("Start handler function",function(){
   });
 });
 
-describe ("UnmarshalBuffer function",function(){
-   it("Should check the json file", () => {
-    const invoked = seeder.unmarshalBuffer(JSON);
-    const result = JSON.parse.toString();
-    assert.isString(result, "Result is an String");
-  });
-});
 
 describe ("createTable functon",function(){
   it ("Should check as a function",function(){
@@ -73,10 +66,3 @@ describe ("Check the Seeder file",function(){
     expect(tblName).to.be.a("string");
   });
 });
-
-describe ("FileExists function", function(){
-  it ("File should be an object", function(){
-    let fileObj = seeder.fileExists(__filename);
-    assert.typeOf(fileObj,"object");  
-  });
-}); 
