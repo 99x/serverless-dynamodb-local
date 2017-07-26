@@ -12,6 +12,7 @@ var db = new aws.DynamoDB({ endpoint: 'http://localhost:8000' });
 
 describe("Check Table operations", function() {
   describe("#create table", function() {
+    this.timeout(50000);
     it("should create a table if not existing", function(done) {
       var params = {
       TableName : "Movies",
@@ -45,6 +46,7 @@ describe("Check Table operations", function() {
   });
 
   describe("#delete table", function(){
+    this.timeout(50000);
     it("should delete the table", function(done){
       var params = {"TableName":"Movies"};
       
@@ -61,6 +63,7 @@ describe("Check Table operations", function() {
   });
 
   describe("#update table", function(){
+    this.timeout(50000);
     it("should update the table", function(done){
       var params = {
           "AttributeDefinitions": [ 
@@ -88,6 +91,7 @@ describe("Check Table operations", function() {
     });
   });
   describe("queue-handler", function() {
+    this.timeout(50000);
     it("should connect to dynamodb and list tables", function(done) {
       db.listTables({}, function(err, data) {
         if(err){
@@ -101,6 +105,7 @@ describe("Check Table operations", function() {
   });
 
   describe("#getItems", function() {
+    this.timeout(50000);
     var tableDes = db.getItem({"TableName": "Movies"})
     it("Retrieve hostname from created tables", function() {
       assert.equal(tableDes.httpRequest.endpoint.hostname,"localhost");
