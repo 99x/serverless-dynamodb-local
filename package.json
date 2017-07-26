@@ -29,7 +29,7 @@
     "main": "index.js",
     "bin": {},
     "scripts": {
-        "test": "echo \"Warning: no test specified\" && exit 0"
+        "test": "mocha ./test"
     },
     "dependencies": {
         "aws-sdk": "^2.7.0",
