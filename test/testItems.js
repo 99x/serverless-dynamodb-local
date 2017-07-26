@@ -67,7 +67,7 @@ describe("#Update Items", function(){
 });
 
 describe("#Delete Items", function(){
-  this.timeout(15000);
+  this.timeout(30000);
   it("should delete the items", function(done){
     var params = {
       TableName:"Movies10",
