@@ -10,7 +10,7 @@ var db = new aws.DynamoDB({ endpoint: "http://localhost:8000" });
 var dbClient = new aws.DynamoDB.DocumentClient({ endpoint: "http://localhost:8000"});
 
 describe("#Add Items", function() {
-  this.timeout(15000);
+  this.timeout(30000);
   it("should add item to table", function(done) {
     {
       var params = {
@@ -38,7 +38,7 @@ describe("#Add Items", function() {
 });
 
 describe("#Update Items", function(){
-  this.timeout(15000);
+  this.timeout(30000);
   it("should update the items", function(done){
     var params = {
       TableName:"MyMovie",
@@ -92,7 +92,7 @@ describe("#Delete Items", function(){
 });
 
 describe("#Retrieving from database",function(){
-  this.timeout(15000);
+  this.timeout(30000);
   var params = {
     TableName : "Movies10",
     KeyConditionExpression: "#yr = :yyyy",
@@ -105,7 +105,7 @@ describe("#Retrieving from database",function(){
   };
   
   it ("Getting data from the table", function(done){
-    this.timeout(15000);
+    this.timeout(30000);
     dbClient.query(params, function(err, data) {
       if (err) {
         should.exist(err); 
