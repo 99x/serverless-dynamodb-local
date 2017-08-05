@@ -65,6 +65,8 @@ custom:
       inMemory: true
       migrate: true
       seed: true
+    # Uncomment only if you already have a DynamoDB running locally
+    # noStart: true
 ```
 
 ##  Migrations: sls dynamodb migrate
