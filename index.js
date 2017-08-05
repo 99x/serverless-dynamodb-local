@@ -167,7 +167,7 @@ class ServerlessDynamodbLocal {
 
     endHandler() {
         if (!this.options.noStart) {
-            this.serverlessLog('DynamoDB - stopping local database');
+            this.serverlessLog("DynamoDB - stopping local database");
             dynamodbLocal.stop(this.port);
         }
     }
