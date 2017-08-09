@@ -149,15 +149,14 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        if (!this.options.noStart) {
-          const config = this.config;
-          const options = _.merge({
-                  sharedDb: this.options.sharedDb || true
-              },
-              config && config.start,
-              this.options
-          );
-
+        const config = this.config;
+        const options = _.merge({
+                sharedDb: this.options.sharedDb || true
+            },
+            config && config.start,
+            this.options
+        );
+        if (!options.noStart) {
           dynamodbLocal.start(options);
         }
         return BbPromise.resolve()
