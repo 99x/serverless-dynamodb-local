@@ -66,6 +66,11 @@ class ServerlessDynamodbLocal {
                             }
                         }
                     },
+                    noStart: {
+                      shortcut: "n",
+                      default: false,
+                      usage: "Do not start DynamoDB local (in case it is already running)",
+                    },
                     remove: {
                         lifecycleEvents: ["removeHandler"],
                         usage: "Removes local DynamoDB"
@@ -151,16 +156,19 @@ class ServerlessDynamodbLocal {
             config && config.start,
             this.options
         );
-
-        dynamodbLocal.start(options);
+        if (!options.noStart) {
+          dynamodbLocal.start(options);
+        }
         return BbPromise.resolve()
         .then(() => options.migrate && this.migrateHandler())
         .then(() => options.seed && this.seedHandler());
     }
 
     endHandler() {
-        this.serverlessLog('DynamoDB - stopping local database');
-        dynamodbLocal.stop(this.port);
+        if (!this.options.noStart) {
+            this.serverlessLog("DynamoDB - stopping local database");
+            dynamodbLocal.stop(this.port);
+        }
     }
 
     getDefaultStack() {
