@@ -66,6 +66,11 @@ class ServerlessDynamodbLocal {
                             }
                         }
                     },
+                    noStart: {
+                      shortcut: "n",
+                      default: false,
+                      usage: "Do not start DynamoDB local (in case it is already running)",
+                    },
                     remove: {
                         lifecycleEvents: ["removeHandler"],
                         usage: "Removes local DynamoDB"
@@ -102,9 +107,15 @@ class ServerlessDynamodbLocal {
         return port;
     }
 
+    get host() {
+        const config = this.config;
+        const host = _.get(config, "start.host", "localhost");
+        return host;
+    }
+
     dynamodbOptions() {
         const dynamoOptions = {
-            endpoint: `http://localhost:${this.port}`,
+            endpoint: `http://${this.host}:${this.port}`,
             region: "localhost",
             accessKeyId: "MOCK_ACCESS_KEY_ID",
             secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
@@ -151,28 +162,58 @@ class ServerlessDynamodbLocal {
             config && config.start,
             this.options
         );
-
-        dynamodbLocal.start(options);
+        if (!options.noStart) {
+          dynamodbLocal.start(options);
+        }
         return BbPromise.resolve()
         .then(() => options.migrate && this.migrateHandler())
         .then(() => options.seed && this.seedHandler());
     }
 
     endHandler() {
-        this.serverlessLog('DynamoDB - stopping local database');
-        dynamodbLocal.stop(this.port);
+        if (!this.options.noStart) {
+            this.serverlessLog("DynamoDB - stopping local database");
+            dynamodbLocal.stop(this.port);
+        }
+    }
+
+    getDefaultStack() {
+        return _.get(this.service, "resources");
+    }
+
+    getAdditionalStacks() {
+        return _.values(_.get(this.service, "custom.additionalStacks", {}));
+    }
+
+    hasAdditionalStacksPlugin() {
+        return _.get(this.service, "plugins", []).includes("serverless-plugin-additional-stacks");
+    }
+
+    getTableDefinitionsFromStack(stack) {
+        const resources = _.get(stack, "Resources", []);
+        return Object.keys(resources).map((key) => {
+            if (resources[key].Type === "AWS::DynamoDB::Table") {
+                return resources[key].Properties;
+            }
+        }).filter((n) => n);
     }
 
     /**
      * Gets the table definitions
      */
     get tables() {
-        const resources = this.service.resources.Resources;
-        return Object.keys(resources).map((key) => {
-            if (resources[key].Type === "AWS::DynamoDB::Table") {
-                return resources[key].Properties;
-            }
-        }).filter((n) => n);
+        let stacks = [];
+
+        const defaultStack = this.getDefaultStack();
+        if (defaultStack) {
+            stacks.push(defaultStack);
+        }
+
+        if (this.hasAdditionalStacksPlugin()) {
+            stacks = stacks.concat(this.getAdditionalStacks());
+        }
+
+        return stacks.map((stack) => this.getTableDefinitionsFromStack(stack)).reduce((tables, tablesInStack) => tables.concat(tablesInStack), []);
     }
 
     /**
