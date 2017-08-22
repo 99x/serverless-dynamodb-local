@@ -178,6 +178,17 @@ Make sure that `serverless-dynamodb-local` is above `serverless-offline` so it w
 
 Now your local DynamoDB database will be automatically started before running `serverless offline`.
 
+### Using with serverless-offline and serverless-webpack plugin
+Run `serverless offline start`. In comparison with `serverless offline`, the `start` command will fire an `init` and a `end` lifecycle hook which is needed for serverless-offline and serverless-dynamodb-local to switch off both ressources. 
+
+Add plugins to your `serverless.yml` file:
+```yaml
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline #serverless-offline needs to be last in the list
+```
+
 ## Reference Project
 * [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
 
