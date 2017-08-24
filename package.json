@@ -29,7 +29,7 @@
     "main": "index.js",
     "bin": {},
     "scripts": {
-        "test": "mocha ./test"
+        "test": "nyc mocha ./test"
     },
     "dependencies": {
         "aws-sdk": "^2.7.0",
@@ -40,6 +40,7 @@
     "devDependencies": {
         "chai": "^4.1.1",
         "mocha": "^3.5.0",
+        "nyc": "11.1.0",
         "should": "^11.2.1"
     }
 }
