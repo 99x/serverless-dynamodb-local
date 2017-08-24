@@ -33,6 +33,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
     // interval lets us know how much time we have burnt so far. This lets us have a backoff mechanism to try
     // again a few times in case the Database resources are in the middle of provisioning.
     let interval = 0;
+
     function execute(interval) {
       setTimeout(() => dynamodb.batchWrite(params, (err) => {
         if (err) {
@@ -46,6 +47,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
         }
       }), interval);
     }
+
     execute(interval);
   });
 }
@@ -60,9 +62,11 @@ function writeSeeds(dynamodb, tableName, seeds) {
   if (!dynamodb) {
     throw new Error("dynamodb argument must be provided");
   }
+
   if (!tableName) {
     throw new Error("table name argument must be provided");
   }
+
   if (!seeds) {
     throw new Error("seeds argument must be provided");
   }
@@ -72,7 +76,7 @@ function writeSeeds(dynamodb, tableName, seeds) {
     return BbPromise.map(
       seedChunks,
       (chunk) => writeSeedBatch(dynamodb, tableName, chunk),
-      { concurrency: MIGRATION_SEED_CONCURRENCY }
+      {concurrency: MIGRATION_SEED_CONCURRENCY}
     )
       .then(() => console.log("Seed running complete for table: " + tableName));
   }
@@ -95,9 +99,9 @@ function fileExists(fileName) {
  * @return {json} json with Buffer object.
  */
 function unmarshalBuffer(json) {
-  _.forEach(json, function(value, key) {
-    if (value.type==="Buffer") {
-      json[key]= new Buffer(value.data);
+  _.forEach(json, function (value, key) {
+    if (value.type === "Buffer") {
+      json[key] = new Buffer(value.data);
     }
   });
   return json;
@@ -118,7 +122,7 @@ function getSeedsAtLocation(location) {
   if (Array.isArray(result)) {
     return _.forEach(result, unmarshalBuffer);
   } else {
-    return [ unmarshalBuffer(result) ];
+    return [unmarshalBuffer(result)];
   }
 }
 
@@ -133,13 +137,14 @@ function locateSeeds(sources, cwd) {
   const locations = sources.map((source) => path.join(cwd, source));
   return BbPromise.map(locations, (location) => {
     return fileExists(location).then((exists) => {
-      if(!exists) {
+      if (!exists) {
         throw new Error("source file " + location + " does not exist");
       }
+
       return getSeedsAtLocation(location);
     });
-  // Smash the arrays together
+    // Smash the arrays together
   }).then((seedArrays) => [].concat.apply([], seedArrays));
 }
 
-module.exports = { writeSeeds, locateSeeds };
+module.exports = {writeSeeds, locateSeeds};
