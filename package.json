@@ -1,45 +1,46 @@
 {
-    "name": "serverless-dynamodb-local",
-    "version": "0.2.24",
-    "engines": {
-        "node": ">=4.0"
-    },
-    "description": "Serverless dynamodb local plugin",
-    "author": "99xtechnology.com",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/99xt/serverless-dynamodb-local"
-    },
-    "keywords": [
-        "serverless framework plugin",
-        "serverless applications",
-        "serverless plugins",
-        "api gateway",
-        "lambda",
-        "dynamodb",
-        "dynamodb local",
-        "aws",
-        "aws lambda",
-        "aws dynamodb",
-        "amazon",
-        "amazon web services",
-        "serverless.com"
-    ],
-    "main": "index.js",
-    "bin": {},
-    "scripts": {
-        "test": "mocha ./test"
-    },
-    "dependencies": {
-        "aws-sdk": "^2.7.0",
-        "bluebird": "^3.4.6",
-        "dynamodb-localhost": "^0.0.5",
-        "lodash": "^4.17.0"
-    },
-    "devDependencies": {
-        "chai": "^4.1.1",
-        "mocha": "^3.5.0",
-        "should": "^11.2.1"
-    }
+  "name": "serverless-dynamodb-local",
+  "version": "0.2.24",
+  "engines": {
+    "node": ">=4.0"
+  },
+  "description": "Serverless dynamodb local plugin",
+  "author": "99xtechnology.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/99xt/serverless-dynamodb-local"
+  },
+  "keywords": [
+    "serverless framework plugin",
+    "serverless applications",
+    "serverless plugins",
+    "api gateway",
+    "lambda",
+    "dynamodb",
+    "dynamodb local",
+    "aws",
+    "aws lambda",
+    "aws dynamodb",
+    "amazon",
+    "amazon web services",
+    "serverless.com"
+  ],
+  "main": "index.js",
+  "bin": {},
+  "scripts": {
+    "test": "nyc mocha ./test"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.7.0",
+    "bluebird": "^3.4.6",
+    "dynamodb-localhost": "^0.0.5",
+    "lodash": "^4.17.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.1",
+    "mocha": "^3.5.0",
+    "nyc": "11.1.0",
+    "should": "^11.2.1"
+  }
 }
