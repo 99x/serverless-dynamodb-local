@@ -97,6 +97,9 @@ resources:
           WriteCapacityUnits: 1
 ```
 
+**Note:**
+DynamoDB local doesn't support TTL specification, therefore plugin will simply ignore ttl configuration from Cloudformation template.
+
 ## Seeding: sls dynamodb seed
 ### Configuration
 
