@@ -244,6 +244,10 @@ class ServerlessDynamodbLocal {
             if (migration.TimeToLiveSpecification) {
               delete migration.TimeToLiveSpecification;
             }
+            // Tags are supported in Cloud Formation, but not in DynamoDB API
+            if (migration.Tags) {
+              delete migration.Tags;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     this.serverlessLog("DynamoDB - Error - ", err);
