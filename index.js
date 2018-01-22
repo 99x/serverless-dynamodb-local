@@ -245,8 +245,13 @@ class ServerlessDynamodbLocal {
             }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
-                    this.serverlessLog("DynamoDB - Error - ", err);
-                    reject(err);
+                    if (err.name === 'ResourceInUseException') {
+                        this.serverlessLog(`DynamoDB - Warn - table ${migration.TableName} already exists`);
+                        resolve();
+                    } else {
+                        this.serverlessLog("DynamoDB - Error - ", err);
+                        reject(err);
+                    }
                 } else {
                     this.serverlessLog("DynamoDB - created table " + migration.TableName);
                     resolve(migration);
