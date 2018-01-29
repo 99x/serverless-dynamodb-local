@@ -8,15 +8,19 @@ const aws = require ("aws-sdk");
 const seeder = require("../src/seeder.js");
 const dataApp = require("../index.js");
 
+const serverlessMock = require('./serverlessMock');
+
 describe("Port function",function(){
   it("Port should return number",function(){
-    let myport = dataApp.prototype.port;
+    let service = new dataApp(serverlessMock, {});
+    let myport = service.port;
     assert(typeof myport, "number");
   });
 
   it("Port value should be >= 0 and < 65536",function () {
-  http.get(`http://localhost:${dataApp.prototype.port}`, function (response) {
-    assert.equal(response.statusCode, 200);
+    let service = new dataApp(serverlessMock, {});
+    http.get(`http://localhost:${service.port}`, function (response) {
+      assert.equal(response.statusCode, 200);
     });
   });
 });
