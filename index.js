@@ -247,6 +247,13 @@ class ServerlessDynamodbLocal {
             if (migration.TimeToLiveSpecification) {
               delete migration.TimeToLiveSpecification;
             }
+            // Tags are supported in Cloud Formation, but not in DynamoDB API
+            if (migration.Tags) {
+              delete migration.Tags;
+            }
+            if (migration.SSESpecification) {
+              delete migration.SSESpecification;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     if (err.name === 'ResourceInUseException') {
