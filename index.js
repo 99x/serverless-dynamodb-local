@@ -247,6 +247,10 @@ class ServerlessDynamodbLocal {
             if (migration.TimeToLiveSpecification) {
               delete migration.TimeToLiveSpecification;
             }
+            if (migration.SSESpecification) {
+              migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
+              delete migration.SSESpecification.SSEEnabled;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     if (err.name === 'ResourceInUseException') {
