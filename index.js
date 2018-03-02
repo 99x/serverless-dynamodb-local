@@ -22,7 +22,13 @@ class ServerlessDynamodbLocal {
                     },
                     seed: {
                         lifecycleEvents: ["seedHandler"],
-                        usage: "Seeds local DynamoDB tables with data"
+                        usage: "Seeds local DynamoDB tables with data",
+                        options: {
+                            online: {
+                                shortcut: "o",
+                                usage: "Will connect to the tables online to do an online seed run"
+                            }
+                        }
                     },
                     start: {
                         lifecycleEvents: ["startHandler"],
@@ -113,13 +119,23 @@ class ServerlessDynamodbLocal {
         return host;
     }
 
-    dynamodbOptions() {
-        const dynamoOptions = {
-            endpoint: `http://${this.host}:${this.port}`,
-            region: "localhost",
-            accessKeyId: "MOCK_ACCESS_KEY_ID",
-            secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
-        };
+    dynamodbOptions(options) {
+        let dynamoOptions = {};
+
+        if(options && options.online){
+            this.serverlessLog("Connecting to online tables...");
+            if (!options.region) throw new Error("please specify the region");
+            dynamoOptions = {
+                region: options.region,
+            };
+        } else {
+            dynamoOptions = {
+                endpoint: `http://${this.host}:${this.port}`,
+                region: "localhost",
+                accessKeyId: "MOCK_ACCESS_KEY_ID",
+                secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
+            };
+        }
 
         return {
             raw: new AWS.DynamoDB(dynamoOptions),
@@ -134,7 +150,8 @@ class ServerlessDynamodbLocal {
     }
 
     seedHandler() {
-        const documentClient = this.dynamodbOptions().doc;
+        const options = this.options; 
+        const documentClient = this.dynamodbOptions(options).doc;
         const seedSources = this.seedSources;
         return BbPromise.each(seedSources, (source) => {
             if (!source.table) {
