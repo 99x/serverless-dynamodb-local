@@ -124,7 +124,9 @@ class ServerlessDynamodbLocal {
 
         if(options && options.online){
             this.serverlessLog("Connecting to online tables...");
-            if (!options.region) throw new Error("please specify the region");
+            if (!options.region) { 
+                throw new Error("please specify the region");
+            }
             dynamoOptions = {
                 region: options.region,
             };
