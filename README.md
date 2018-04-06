@@ -67,6 +67,9 @@ custom:
       seed: true
     # Uncomment only if you already have a DynamoDB running locally
     # noStart: true
+    # If you only want to start DynamoDB in some stages, declare them here
+      stages:
+        - dev
 ```
 
 ##  Migrations: sls dynamodb migrate

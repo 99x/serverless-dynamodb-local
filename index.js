@@ -182,9 +182,16 @@ class ServerlessDynamodbLocal {
             this.options
         );
 
+        const stage = options.stage || this.serverless.service.provider.stage
+        let startThisStage = true;
+        if (options.stages && !options.stages.includes(stage)) {
+          startThisStage = false;
+        }
+        options.startThisStage = startThisStage
+
         // otherwise endHandler will be mis-informed
         this.options = options;
-        if (!options.noStart) {
+        if (!options.noStart && startThisStage) {
           dynamodbLocal.start(options);
         }
         return BbPromise.resolve()
@@ -193,7 +200,7 @@ class ServerlessDynamodbLocal {
     }
 
     endHandler() {
-        if (!this.options.noStart) {
+        if (!this.options.noStart && this.options.startThisStage) {
             this.serverlessLog("DynamoDB - stopping local database");
             dynamodbLocal.stop(this.port);
         }
