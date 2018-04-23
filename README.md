@@ -108,23 +108,24 @@ In `serverless.yml` seeding categories are defined under `dynamodb.seed`.
 If `dynamodb.start.seed` is true, then seeding is performed after table migrations.
 
 ```yml
-dynamodb:
-  start:
-    seed: true
+custom:
+  dynamodb:
+    start:
+      seed: true
 
-  seed:
-    domain:
-      sources:
-        - table: domain-widgets
-          sources: [./domainWidgets.json]
-        - table: domain-fidgets
-          sources: [./domainFidgets.json]
-    test:
-      sources:
-        - table: users
-          sources: [./fake-test-users.json]
-        - table: subscriptions
-          sources: [./fake-test-subscriptions.json]
+    seed:
+      domain:
+        sources:
+          - table: domain-widgets
+            sources: [./domainWidgets.json]
+          - table: domain-fidgets
+            sources: [./domainFidgets.json]
+      test:
+        sources:
+          - table: users
+            sources: [./fake-test-users.json]
+          - table: subscriptions
+            sources: [./fake-test-subscriptions.json]
 ```
 
 ```bash
@@ -182,7 +183,7 @@ Make sure that `serverless-dynamodb-local` is above `serverless-offline` so it w
 Now your local DynamoDB database will be automatically started before running `serverless offline`.
 
 ### Using with serverless-offline and serverless-webpack plugin
-Run `serverless offline start`. In comparison with `serverless offline`, the `start` command will fire an `init` and a `end` lifecycle hook which is needed for serverless-offline and serverless-dynamodb-local to switch off both ressources. 
+Run `serverless offline start`. In comparison with `serverless offline`, the `start` command will fire an `init` and a `end` lifecycle hook which is needed for serverless-offline and serverless-dynamodb-local to switch off both ressources.
 
 Add plugins to your `serverless.yml` file:
 ```yaml
