@@ -155,23 +155,16 @@ class ServerlessDynamodbLocal {
         const options = this.options; 
         const dynamodb = this.dynamodbOptions(options);
 
-        const seedPromise = BbPromise.each(this.seedSources, (source) => {
+        return BbPromise.each(this.seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return seeder.locateSeeds(source.sources || [])
+            const seedPromise = seeder.locateSeeds(source.sources || [])
             .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
-        });
-
-        const rawSeedPromise = BbPromise.each(this.rawSeedSources, (source) => {
-            if (!source.table) {
-                throw new Error("Raw seeding source \"table\" property not defined");
-            }
-            return seeder.locateSeeds(source.rawsources || [])
+            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
             .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+            return BbPromise.all([seedPromise, rawSeedPromise]);
         });
-
-        return BbPromise.all([seedPromise, rawSeedPromise]);
     }
 
     removeHandler() {
@@ -265,26 +258,6 @@ class ServerlessDynamodbLocal {
             return [];
         }
         const sourcesByCategory = categories.map((category) => seedConfig[category].sources);
-        return [].concat.apply([], sourcesByCategory);
-    }
-
-    /**
-     * Gets the raw seeding sources
-     */
-    get rawSeedSources() {
-        const config = this.service.custom.dynamodb;
-        const seedConfig = _.get(config, "seed", {});
-        const seed = this.options.seed || config.start.seed || seedConfig;
-        let categories;
-        if (typeof seed === "string") {
-            categories = seed.split(",");
-        } else if(seed) {
-            categories = Object.keys(seedConfig);
-        } else { // if (!seed)
-            this.serverlessLog("DynamoDB - No seeding defined. Skipping data seeding.");
-            return [];
-        }
-        const sourcesByCategory = categories.map((category) => seedConfig[category].rawsources);
         return [].concat.apply([], sourcesByCategory);
     }
 
