@@ -153,14 +153,17 @@ class ServerlessDynamodbLocal {
 
     seedHandler() {
         const options = this.options; 
-        const documentClient = this.dynamodbOptions(options).doc;
-        const seedSources = this.seedSources;
-        return BbPromise.each(seedSources, (source) => {
+        const dynamodb = this.dynamodbOptions(options);
+
+        return BbPromise.each(this.seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return seeder.locateSeeds(source.sources || [])
-            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
+            const seedPromise = seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
+            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+            return BbPromise.all([seedPromise, rawSeedPromise]);
         });
     }
 

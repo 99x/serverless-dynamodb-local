@@ -107,6 +107,8 @@ In `serverless.yml` seeding categories are defined under `dynamodb.seed`.
 
 If `dynamodb.start.seed` is true, then seeding is performed after table migrations.
 
+If you wish to use raw AWS AttributeValues to specify your seed data instead of Javascript types then simply change the variable of any such json files from `sources:` to `rawsources:`.
+
 ```yml
 dynamodb:
   start:
@@ -122,7 +124,7 @@ dynamodb:
     test:
       sources:
         - table: users
-          sources: [./fake-test-users.json]
+          rawsources: [./fake-test-users.json]
         - table: subscriptions
           sources: [./fake-test-subscriptions.json]
 ```
