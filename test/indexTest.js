@@ -15,7 +15,7 @@ describe("Port function",function(){
   });
 
   it("Port value should be >= 0 and < 65536",function(done){
-    http.get(`http://localhost:${dataApp.prototype.port}`, function (response) {
+    http.get(`http://localhost:${dataApp.prototype.port}/shell/`, function (response) {
       assert.equal(response.statusCode, 200);
       done();
     });
