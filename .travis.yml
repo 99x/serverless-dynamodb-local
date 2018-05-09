@@ -37,7 +37,7 @@ install:
 
 before_script:
   - sls dynamodb install
-  - sls offline start -p 3000 & 
+  - sls offline start & 
   - cd .. 
   - cd ..
   - npm run test
