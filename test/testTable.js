@@ -46,7 +46,7 @@ describe("Check Table operations", function() {
         if(err){
             should.exist(err);
         } else {
-            should.not.exist(data);
+            expect(data.TableNames).to.be.empty;
         }
         done();     
         });
