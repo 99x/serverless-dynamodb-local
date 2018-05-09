@@ -14,9 +14,10 @@ describe("Port function",function(){
     assert(typeof myport, "number");
   });
 
-  it("Port value should be >= 0 and < 65536",function () {
-  http.get(`http://localhost:${dataApp.prototype.port}`, function (response) {
-    assert.equal(response.statusCode, 200);
+  it("Port value should be >= 0 and < 65536",function(done){
+    http.get(`http://localhost:${dataApp.prototype.port}`, function (response) {
+      assert.equal(response.statusCode, 200);
+      done();
     });
   });
 });
