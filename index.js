@@ -21,7 +21,13 @@ class ServerlessDynamodbLocal {
                     },
                     seed: {
                         lifecycleEvents: ["seedHandler"],
-                        usage: "Seeds local DynamoDB tables with data"
+                        usage: "Seeds local DynamoDB tables with data",
+                        options: {
+                            online: {
+                                shortcut: "o",
+                                usage: "Will connect to the tables online to do an online seed run"
+                            }
+                        }
                     },
                     start: {
                         lifecycleEvents: ["startHandler"],
@@ -112,13 +118,25 @@ class ServerlessDynamodbLocal {
         return host;
     }
 
-    dynamodbOptions() {
-        const dynamoOptions = {
-            endpoint: `http://${this.host}:${this.port}`,
-            region: "localhost",
-            accessKeyId: "MOCK_ACCESS_KEY_ID",
-            secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
-        };
+    dynamodbOptions(options) {
+        let dynamoOptions = {};
+
+        if(options && options.online){
+            this.serverlessLog("Connecting to online tables...");
+            if (!options.region) { 
+                throw new Error("please specify the region");
+            }
+            dynamoOptions = {
+                region: options.region,
+            };
+        } else {
+            dynamoOptions = {
+                endpoint: `http://${this.host}:${this.port}`,
+                region: "localhost",
+                accessKeyId: "MOCK_ACCESS_KEY_ID",
+                secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
+            };
+        }
 
         return {
             raw: new AWS.DynamoDB(dynamoOptions),
@@ -133,14 +151,18 @@ class ServerlessDynamodbLocal {
     }
 
     seedHandler() {
-        const documentClient = this.dynamodbOptions().doc;
-        const seedSources = this.seedSources;
-        return BbPromise.each(seedSources, (source) => {
+        const options = this.options; 
+        const dynamodb = this.dynamodbOptions(options);
+
+        return BbPromise.each(this.seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return seeder.locateSeeds(source.sources || [])
-            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
+            const seedPromise = seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
+            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+            return BbPromise.all([seedPromise, rawSeedPromise]);
         });
     }
 
@@ -245,6 +267,13 @@ class ServerlessDynamodbLocal {
             }
             if (migration.TimeToLiveSpecification) {
               delete migration.TimeToLiveSpecification;
+            }
+            if (migration.SSESpecification) {
+              migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
+              delete migration.SSESpecification.SSEEnabled;
+            }
+            if (migration.Tags) {
+                delete migration.Tags;
             }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {

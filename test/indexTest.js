@@ -16,10 +16,10 @@ describe("Port function",function(){
     assert(typeof service.port, "number");
   });
 
-  it("Port value should be >= 0 and < 65536",function () {
-    let service = new Plugin(serverlessMock, {});
-    http.get(`http://localhost:${service.port}`, function (response) {
+  it("Port value should be >= 0 and < 65536",function(done){
+    http.get(`http://localhost:${service.port}/shell/`, function (response) {
       assert.equal(response.statusCode, 200);
+      done();
     });
   });
 });
