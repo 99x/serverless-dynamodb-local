@@ -124,7 +124,7 @@ class ServerlessDynamodbLocal {
 
         if(options && options.online){
             this.serverlessLog("Connecting to online tables...");
-            if (!options.region) { 
+            if (!options.region) {
                 throw new Error("please specify the region");
             }
             dynamoOptions = {
@@ -152,7 +152,7 @@ class ServerlessDynamodbLocal {
     }
 
     seedHandler() {
-        const options = this.options; 
+        const options = this.options;
         const dynamodb = this.dynamodbOptions(options);
 
         return BbPromise.each(this.seedSources, (source) => {
@@ -272,6 +272,9 @@ class ServerlessDynamodbLocal {
             if (migration.SSESpecification) {
               migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
               delete migration.SSESpecification.SSEEnabled;
+            }
+            if (migration.PointInTimeRecoverySpecification) {
+              delete migration.PointInTimeRecoverySpecification
             }
             if (migration.Tags) {
                 delete migration.Tags;
