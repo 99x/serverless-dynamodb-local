@@ -11,7 +11,11 @@ class ServerlessDynamodbLocal {
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
-        this.options = options;
+        this.options = _.merge({
+          localPath: path.join(serverless.config.servicePath, '.dynamodb')
+          },
+          options
+        );
         this.provider = "aws";
         this.commands = {
             dynamodb: {
@@ -124,7 +128,7 @@ class ServerlessDynamodbLocal {
 
         if(options && options.online){
             this.serverlessLog("Connecting to online tables...");
-            if (!options.region) { 
+            if (!options.region) {
                 throw new Error("please specify the region");
             }
             dynamoOptions = {
@@ -152,7 +156,7 @@ class ServerlessDynamodbLocal {
     }
 
     seedHandler() {
-        const options = this.options; 
+        const options = this.options;
         const dynamodb = this.dynamodbOptions(options);
 
         return BbPromise.each(this.seedSources, (source) => {
@@ -179,7 +183,8 @@ class ServerlessDynamodbLocal {
     startHandler() {
         const config = this.config;
         const options = _.merge({
-                sharedDb: this.options.sharedDb || true
+                sharedDb: this.options.sharedDb || true,
+                install_path: this.options.localPath
             },
             config && config.start,
             this.options
