@@ -4,6 +4,7 @@ const BbPromise = require("bluebird");
 const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
 const seeder = require("./src/seeder");
+const path = require('path');
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
