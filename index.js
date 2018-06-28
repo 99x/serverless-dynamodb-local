@@ -69,6 +69,10 @@ class ServerlessDynamodbLocal {
                             seed: {
                                 shortcut: "s",
                                 usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
+                            },
+                            convertEmptyValues: {
+                                shortcut: "e",
+                                usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             }
                         }
                     },
@@ -129,13 +133,15 @@ class ServerlessDynamodbLocal {
             }
             dynamoOptions = {
                 region: options.region,
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
             };
         } else {
             dynamoOptions = {
                 endpoint: `http://${this.host}:${this.port}`,
                 region: "localhost",
                 accessKeyId: "MOCK_ACCESS_KEY_ID",
-                secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
+                secretAccessKey: "MOCK_SECRET_ACCESS_KEY",
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
             };
         }
 
