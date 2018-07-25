@@ -11,7 +11,7 @@ before_install:
   - npm init --yes
 
 install:
-  - npm install --save-dev serverless-offline 
+  - npm install --save-dev serverless-offline
   - npm install -g serverless@1.0.0-rc.1
   - npm install aws-sdk
   - npm install --save dynamodb-doc-client-wrapper
@@ -37,11 +37,11 @@ install:
 
 before_script:
   - sls dynamodb install
-  - sls offline start & 
+  - sls offline start &
   - sleep 15
-  - cd .. 
+  - cd ..
   - cd ..
   - npm run test
-  
+
 script:
   - npm test
