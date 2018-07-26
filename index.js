@@ -276,6 +276,9 @@ class ServerlessDynamodbLocal {
             if (migration.Tags) {
                 delete migration.Tags;
             }
+            if (migration.PointInTimeRecoverySpecification) {
+                delete migration.PointInTimeRecoverySpecification;
+            }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     if (err.name === 'ResourceInUseException') {
