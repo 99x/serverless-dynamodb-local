@@ -74,6 +74,10 @@ class ServerlessDynamodbLocal {
                             seed: {
                                 shortcut: "s",
                                 usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
+                            },
+                            convertEmptyValues: {
+                                shortcut: "e",
+                                usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             }
                         }
                     },
@@ -101,6 +105,13 @@ class ServerlessDynamodbLocal {
             }
         };
 
+        const stage = this.options.stage || this.service.provider.stage;
+        if (this.config.stages && !this.config.stages.includes(stage)) {
+          // don't do anything for this stage
+          this.hooks = {};
+          return;
+        }
+
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
@@ -113,13 +124,13 @@ class ServerlessDynamodbLocal {
     }
 
     get port() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const port = _.get(config, "start.port", 8000);
         return port;
     }
 
     get host() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const host = _.get(config, "start.host", "localhost");
         return host;
     }
@@ -134,13 +145,15 @@ class ServerlessDynamodbLocal {
             }
             dynamoOptions = {
                 region: options.region,
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
             };
         } else {
             dynamoOptions = {
                 endpoint: `http://${this.host}:${this.port}`,
                 region: "localhost",
                 accessKeyId: "MOCK_ACCESS_KEY_ID",
-                secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
+                secretAccessKey: "MOCK_SECRET_ACCESS_KEY",
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
             };
         }
 
@@ -182,7 +195,7 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const options = _.merge({
                 sharedDb: this.options.sharedDb || true,
                 install_path: this.options.localPath
@@ -278,6 +291,9 @@ class ServerlessDynamodbLocal {
             if (migration.SSESpecification) {
               migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
               delete migration.SSESpecification.SSEEnabled;
+            }
+            if (migration.PointInTimeRecoverySpecification) {
+              delete migration.PointInTimeRecoverySpecification;
             }
             if (migration.Tags) {
                 delete migration.Tags;

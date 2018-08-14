@@ -96,7 +96,8 @@ function fileExists(fileName) {
  */
 function unmarshalBuffer(json) {
   _.forEach(json, function(value, key) {
-    if (value.type==="Buffer") {
+    // Null check to prevent creation of Buffer when value is null
+    if (value !== null && value.type==="Buffer") {
       json[key]= new Buffer(value.data);
     }
   });
