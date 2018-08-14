@@ -95,6 +95,13 @@ class ServerlessDynamodbLocal {
             }
         };
 
+        const stage = this.options.stage || this.service.provider.stage;
+        if (this.config.stages && !this.config.stages.includes(stage)) {
+          // don't do anything for this stage
+          this.hooks = {};
+          return;
+        }
+
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
