@@ -10,7 +10,6 @@ class ServerlessDynamodbLocal {
         this.serverless = serverless;
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
-        this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = options;
         this.provider = "aws";
         this.commands = {
@@ -96,6 +95,13 @@ class ServerlessDynamodbLocal {
             }
         };
 
+        const stage = this.options.stage || this.service.provider.stage;
+        if (this.config.stages && !this.config.stages.includes(stage)) {
+          // don't do anything for this stage
+          this.hooks = {};
+          return;
+        }
+
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
@@ -108,13 +114,13 @@ class ServerlessDynamodbLocal {
     }
 
     get port() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const port = _.get(config, "start.port", 8000);
         return port;
     }
 
     get host() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const host = _.get(config, "start.host", "localhost");
         return host;
     }
@@ -177,7 +183,7 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const options = _.merge({
                 sharedDb: this.options.sharedDb || true
             },

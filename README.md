@@ -60,6 +60,9 @@ All the above options can be added to serverless.yml to set default configuratio
 ```yml
 custom:
   dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
     start:
       port: 8000
       inMemory: true
