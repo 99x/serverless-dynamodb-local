@@ -10,7 +10,6 @@ class ServerlessDynamodbLocal {
         this.serverless = serverless;
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
-        this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = options;
         this.provider = "aws";
         this.commands = {
@@ -115,13 +114,13 @@ class ServerlessDynamodbLocal {
     }
 
     get port() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const port = _.get(config, "start.port", 8000);
         return port;
     }
 
     get host() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const host = _.get(config, "start.host", "localhost");
         return host;
     }
@@ -160,14 +159,17 @@ class ServerlessDynamodbLocal {
 
     seedHandler() {
         const options = this.options; 
-        const documentClient = this.dynamodbOptions(options).doc;
-        const seedSources = this.seedSources;
-        return BbPromise.each(seedSources, (source) => {
+        const dynamodb = this.dynamodbOptions(options);
+
+        return BbPromise.each(this.seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return seeder.locateSeeds(source.sources || [])
-            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
+            const seedPromise = seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
+            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+            return BbPromise.all([seedPromise, rawSeedPromise]);
         });
     }
 
@@ -181,7 +183,7 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const options = _.merge({
                 sharedDb: this.options.sharedDb || true
             },
