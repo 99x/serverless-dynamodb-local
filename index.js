@@ -4,13 +4,19 @@ const BbPromise = require("bluebird");
 const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
 const seeder = require("./src/seeder");
+const path = require('path');
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
         this.serverless = serverless;
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
-        this.options = options;
+        this.config = this.service.custom && this.service.custom.dynamodb || {};
+        this.options = _.merge({
+          localPath: path.join(serverless.config.servicePath, '.dynamodb')
+          },
+          options
+        );
         this.provider = "aws";
         this.commands = {
             dynamodb: {
@@ -191,7 +197,8 @@ class ServerlessDynamodbLocal {
     startHandler() {
         const config = this.service.custom && this.service.custom.dynamodb || {};
         const options = _.merge({
-                sharedDb: this.options.sharedDb || true
+                sharedDb: this.options.sharedDb || true,
+                install_path: this.options.localPath
             },
             config && config.start,
             this.options
