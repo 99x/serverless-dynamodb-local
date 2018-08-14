@@ -273,13 +273,8 @@ class ServerlessDynamodbLocal {
               migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
               delete migration.SSESpecification.SSEEnabled;
             }
-            
             if (migration.Tags) {
                 delete migration.Tags;
-            }
-
-            if (migration.PointInTimeRecoverySpecification) {
-                delete migration.PointInTimeRecoverySpecification;
             }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
