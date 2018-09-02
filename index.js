@@ -209,7 +209,7 @@ class ServerlessDynamodbLocal {
 
         let dbPath = options.dbPath;
         if (dbPath) {
-          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath)
+          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath);
         }
 
         if (!options.noStart) {
