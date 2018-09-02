@@ -206,6 +206,12 @@ class ServerlessDynamodbLocal {
 
         // otherwise endHandler will be mis-informed
         this.options = options;
+
+        let dbPath = options.dbPath;
+        if (dbPath) {
+          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath)
+        }
+
         if (!options.noStart) {
           dynamodbLocal.start(options);
         }
