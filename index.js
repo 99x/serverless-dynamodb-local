@@ -13,7 +13,7 @@ class ServerlessDynamodbLocal {
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = _.merge({
-          localPath: path.join(serverless.config.servicePath, '.dynamodb')
+          localPath: serverless.config && path.join(serverless.config.servicePath, '.dynamodb')
           },
           options
         );
