@@ -105,7 +105,7 @@ class ServerlessDynamodbLocal {
             }
         };
 
-        const stage = this.options.stage || this.service.provider.stage;
+        const stage = (this.options && this.options.stage) || this.service.provider.stage;
         if (this.config.stages && !this.config.stages.includes(stage)) {
           // don't do anything for this stage
           this.hooks = {};
