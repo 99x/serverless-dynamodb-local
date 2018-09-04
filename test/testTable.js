@@ -44,10 +44,8 @@ describe("Check Table operations", function() {
     it("should connect to dynamodb and list tables", function(done) {
       db.listTables({}, function(err, data) {
         if(err){
-            console.log("==== error hit ====");
             should.exist(err);
         } else {
-          console.log("==== Not error hit ====");
             expect(data.TableNames).to.be.empty;
         }
         done();     
