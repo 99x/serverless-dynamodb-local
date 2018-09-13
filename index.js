@@ -13,7 +13,7 @@ class ServerlessDynamodbLocal {
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = _.merge({
-          localPath: path.join(serverless.config.servicePath, '.dynamodb')
+          localPath: serverless.config && path.join(serverless.config.servicePath, '.dynamodb')
           },
           options
         );
@@ -105,7 +105,7 @@ class ServerlessDynamodbLocal {
             }
         };
 
-        const stage = this.options.stage || this.service.provider.stage;
+        const stage = (this.options && this.options.stage) || (this.service.provider && this.service.provider.stage);
         if (this.config.stages && !this.config.stages.includes(stage)) {
           // don't do anything for this stage
           this.hooks = {};
@@ -206,6 +206,12 @@ class ServerlessDynamodbLocal {
 
         // otherwise endHandler will be mis-informed
         this.options = options;
+
+        let dbPath = options.dbPath;
+        if (dbPath) {
+          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath);
+        }
+
         if (!options.noStart) {
           dynamodbLocal.start(options);
         }
