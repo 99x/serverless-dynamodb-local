@@ -58,6 +58,8 @@ All CLI options are optional:
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
 --migration               -m  After starting dynamodb local, run dynamodb migrations.
+--heapInitial                 The initial heap size 
+--heapMax                     The maximum heap size
 ```
 
 All the above options can be added to s-project.json to set default configuration: e.g
@@ -69,6 +71,8 @@ custom:
       port: 8000
       inMemory: true
       migration: true
+      heapInitial: 200m
+      heapMax: 1g
     migration:
       dir: ./offline/migrations
 ```

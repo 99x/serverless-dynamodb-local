@@ -90,6 +90,12 @@ class ServerlessDynamodbLocal {
                             migration: {
                                 shortcut: 'm',
                                 usage: 'After starting dynamodb local, run dynamodb migrations'
+                            },
+                            heapInitial: {
+                                usage: 'The initial heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                            },
+                            heapMax: {
+                                usage: 'The maximum heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
                             }
                         }
                     },
