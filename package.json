@@ -1,6 +1,6 @@
 {
-    "name": "serverless-dynamodb-local",
-    "version": "0.2.35",
+    "name": "npm-serverless-dynamodb-local",
+    "version": "1.0.0",
     "engines": {
         "node": ">=4.0"
     },
@@ -9,7 +9,7 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/99xt/serverless-dynamodb-local"
+        "url": "https://github.com/Vin65/npm-serverless-dynamodb-local"
     },
     "keywords": [
         "serverless framework plugin",
@@ -34,7 +34,7 @@
     "dependencies": {
         "aws-sdk": "^2.7.0",
         "bluebird": "^3.4.6",
-        "dynamodb-localhost": "^0.0.6",
+        "npm-dynamodb-localhost": "1.0.0",
         "lodash": "^4.17.0"
     },
     "devDependencies": {

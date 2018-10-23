@@ -2,7 +2,7 @@
 const _ = require("lodash");
 const BbPromise = require("bluebird");
 const AWS = require("aws-sdk");
-const dynamodbLocal = require("dynamodb-localhost");
+const dynamodbLocal = require("npm-dynamodb-localhost");
 const seeder = require("./src/seeder");
 const path = require('path');
 
@@ -53,7 +53,7 @@ class ServerlessDynamodbLocal {
                             },
                             dbPath: {
                                 shortcut: "d",
-                                usage: "The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end."
+                                usage: "The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/npm-serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/npm-serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end."
                             },
                             sharedDb: {
                                 shortcut: "h",

@@ -20,11 +20,11 @@ install:
   - cd ..
   - npm link
   - cd test/sample-template/node_modules
-  - npm link serverless-dynamodb-local
+  - npm link npm-serverless-dynamodb-local
   - cd ..
   - sed -i '18 a plugins:' serverless.yml
   - sed -i '19 a - serverless-offline' serverless.yml
-  - sed -i '20 a - serverless-dynamodb-local' serverless.yml
+  - sed -i '20 a - npm-serverless-dynamodb-local' serverless.yml
   - cd ..
   - cd ..
   - npm install --save-dev mocha
