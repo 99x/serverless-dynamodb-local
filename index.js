@@ -304,6 +304,15 @@ class ServerlessDynamodbLocal {
             if (migration.Tags) {
                 delete migration.Tags;
             }
+            if (migration.BillingMode) {
+                delete migration.BillingMode;
+                if (!migration.ProvisionedThroughput) {
+                  migration.ProvisionedThroughput = {
+                    ReadCapacityUnits: 5,
+                    WriteCapacityUnits: 5
+                  };
+                }
+              }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
                     if (err.name === 'ResourceInUseException') {
