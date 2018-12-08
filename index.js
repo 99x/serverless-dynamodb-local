@@ -306,6 +306,7 @@ class ServerlessDynamodbLocal {
             }
             if (migration.BillingMode) {
                 delete migration.BillingMode;
+
                 const defaultProvisioning = {
                     ReadCapacityUnits: 5,
                     WriteCapacityUnits: 5
