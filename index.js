@@ -304,7 +304,7 @@ class ServerlessDynamodbLocal {
             if (migration.Tags) {
                 delete migration.Tags;
             }
-            if (migration.BillingMode === 'PAY_PER_REQUEST') {
+            if (migration.BillingMode === "PAY_PER_REQUEST") {
                 delete migration.BillingMode;
 
                 const defaultProvisioning = {
@@ -313,7 +313,7 @@ class ServerlessDynamodbLocal {
                 };
                 migration.ProvisionedThroughput = defaultProvisioning;
                 if (migration.GlobalSecondaryIndexes) {
-                    migration.GlobalSecondaryIndexes.forEach(gsi => {
+                    migration.GlobalSecondaryIndexes.forEach((gsi) => {
                         gsi.ProvisionedThroughput = defaultProvisioning;
                     });
                 }
