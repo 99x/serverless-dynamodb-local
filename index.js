@@ -75,6 +75,16 @@ class ServerlessDynamodbLocal {
                                 shortcut: "s",
                                 usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
                             },
+                            migration: {
+                                shortcut: 'm',
+                                usage: 'After starting dynamodb local, run dynamodb migrations'
+                            },
+                            heapInitial: {
+                                usage: 'The initial heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                            },
+                            heapMax: {
+                                usage: 'The maximum heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                            },
                             convertEmptyValues: {
                                 shortcut: "e",
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",

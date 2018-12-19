@@ -51,6 +51,9 @@ All CLI options are optional:
 --sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
+--migration               -m  After starting dynamodb local, run dynamodb migrations.
+--heapInitial                 The initial heap size 
+--heapMax                     The maximum heap size
 --migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration.
 --seed                    -s  After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.
 --convertEmptyValues      -e  Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.
@@ -67,6 +70,8 @@ custom:
     start:
       port: 8000
       inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
       migrate: true
       seed: true
       convertEmptyValues: true
