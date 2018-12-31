@@ -15,11 +15,11 @@ const MIGRATION_SEED_CONCURRENCY = 5;
 /**
  * Writes a batch chunk of migration seeds to DynamoDB. DynamoDB has a limit on the number of
  * items that may be written in a batch operation.
- * @param {DynamoDocumentClient} dynamodb The DynamoDB Document client
+ * @param {function} dynamodbWriteFunction The DynamoDB DocumentClient.batchWrite or DynamoDB.batchWriteItem function 
  * @param {string} tableName The table name being written to
  * @param {any[]} seeds The migration seeds being written to the table
  */
-function writeSeedBatch(dynamodb, tableName, seeds) {
+function writeSeedBatch(dynamodbWriteFunction, tableName, seeds) {
   const params = {
     RequestItems: {
       [tableName]: seeds.map((seed) => ({
@@ -34,7 +34,7 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
     // again a few times in case the Database resources are in the middle of provisioning.
     let interval = 0;
     function execute(interval) {
-      setTimeout(() => dynamodb.batchWrite(params, (err) => {
+      setTimeout(() => dynamodbWriteFunction(params, (err) => {
         if (err) {
           if (err.code === "ResourceNotFoundException" && interval <= 5000) {
             execute(interval + 1000);
@@ -52,13 +52,13 @@ function writeSeedBatch(dynamodb, tableName, seeds) {
 
 /**
  * Writes a seed corpus to the given database table
- * @param {DocumentClient} dynamodb The DynamoDB document instance
+ * @param {function} dynamodbWriteFunction The DynamoDB DocumentClient.batchWrite or DynamoDB.batchWriteItem function
  * @param {string} tableName The table name
  * @param {any[]} seeds The seed values
  */
-function writeSeeds(dynamodb, tableName, seeds) {
-  if (!dynamodb) {
-    throw new Error("dynamodb argument must be provided");
+function writeSeeds(dynamodbWriteFunction, tableName, seeds) {
+  if (!dynamodbWriteFunction) {
+    throw new Error("dynamodbWriteFunction argument must be provided");
   }
   if (!tableName) {
     throw new Error("table name argument must be provided");
@@ -71,7 +71,7 @@ function writeSeeds(dynamodb, tableName, seeds) {
     const seedChunks = _.chunk(seeds, MAX_MIGRATION_CHUNK);
     return BbPromise.map(
       seedChunks,
-      (chunk) => writeSeedBatch(dynamodb, tableName, chunk),
+      (chunk) => writeSeedBatch(dynamodbWriteFunction, tableName, chunk),
       { concurrency: MIGRATION_SEED_CONCURRENCY }
     )
       .then(() => console.log("Seed running complete for table: " + tableName));
@@ -89,6 +89,22 @@ function fileExists(fileName) {
 }
 
 /**
+ * Transform all selerialized Buffer value in a Buffer value inside a json object
+ *
+ * @param {json} json with serialized Buffer value.
+ * @return {json} json with Buffer object.
+ */
+function unmarshalBuffer(json) {
+  _.forEach(json, function(value, key) {
+    // Null check to prevent creation of Buffer when value is null
+    if (value !== null && value.type==="Buffer") {
+      json[key]= new Buffer(value.data);
+    }
+  });
+  return json;
+}
+
+/**
  * Scrapes seed files out of a given location. This file may contain
  * either a simple json object, or an array of simple json objects. An array
  * of json objects is returned.
@@ -101,9 +117,9 @@ function getSeedsAtLocation(location) {
 
   // Ensure the output is an array
   if (Array.isArray(result)) {
-    return result;
+    return _.forEach(result, unmarshalBuffer);
   } else {
-    return [ result ];
+    return [ unmarshalBuffer(result) ];
   }
 }
 

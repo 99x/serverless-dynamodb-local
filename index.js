@@ -4,6 +4,7 @@ const BbPromise = require("bluebird");
 const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
 const seeder = require("./src/seeder");
+const path = require('path');
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
@@ -11,7 +12,11 @@ class ServerlessDynamodbLocal {
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
         this.config = this.service.custom && this.service.custom.dynamodb || {};
-        this.options = options;
+        this.options = _.merge({
+          localPath: serverless.config && path.join(serverless.config.servicePath, '.dynamodb')
+          },
+          options
+        );
         this.provider = "aws";
         this.commands = {
             dynamodb: {
@@ -22,7 +27,13 @@ class ServerlessDynamodbLocal {
                     },
                     seed: {
                         lifecycleEvents: ["seedHandler"],
-                        usage: "Seeds local DynamoDB tables with data"
+                        usage: "Seeds local DynamoDB tables with data",
+                        options: {
+                            online: {
+                                shortcut: "o",
+                                usage: "Will connect to the tables online to do an online seed run"
+                            }
+                        }
                     },
                     start: {
                         lifecycleEvents: ["startHandler"],
@@ -63,8 +74,27 @@ class ServerlessDynamodbLocal {
                             seed: {
                                 shortcut: "s",
                                 usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
+                            },
+                            migration: {
+                                shortcut: 'm',
+                                usage: 'After starting dynamodb local, run dynamodb migrations'
+                            },
+                            heapInitial: {
+                                usage: 'The initial heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                            },
+                            heapMax: {
+                                usage: 'The maximum heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                            },
+                            convertEmptyValues: {
+                                shortcut: "e",
+                                usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             }
                         }
+                    },
+                    noStart: {
+                      shortcut: "n",
+                      default: false,
+                      usage: "Do not start DynamoDB local (in case it is already running)",
                     },
                     remove: {
                         lifecycleEvents: ["removeHandler"],
@@ -85,6 +115,13 @@ class ServerlessDynamodbLocal {
             }
         };
 
+        const stage = (this.options && this.options.stage) || (this.service.provider && this.service.provider.stage);
+        if (this.config.stages && !this.config.stages.includes(stage)) {
+          // don't do anything for this stage
+          this.hooks = {};
+          return;
+        }
+
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
@@ -97,18 +134,38 @@ class ServerlessDynamodbLocal {
     }
 
     get port() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const port = _.get(config, "start.port", 8000);
         return port;
     }
 
-    dynamodbOptions() {
-        const dynamoOptions = {
-            endpoint: `http://localhost:${this.port}`,
-            region: "localhost",
-            accessKeyId: "MOCK_ACCESS_KEY_ID",
-            secretAccessKey: "MOCK_SECRET_ACCESS_KEY"
-        };
+    get host() {
+        const config = this.service.custom && this.service.custom.dynamodb || {};
+        const host = _.get(config, "start.host", "localhost");
+        return host;
+    }
+
+    dynamodbOptions(options) {
+        let dynamoOptions = {};
+
+        if(options && options.online){
+            this.serverlessLog("Connecting to online tables...");
+            if (!options.region) {
+                throw new Error("please specify the region");
+            }
+            dynamoOptions = {
+                region: options.region,
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
+            };
+        } else {
+            dynamoOptions = {
+                endpoint: `http://${this.host}:${this.port}`,
+                region: "localhost",
+                accessKeyId: "MOCK_ACCESS_KEY_ID",
+                secretAccessKey: "MOCK_SECRET_ACCESS_KEY",
+                convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
+            };
+        }
 
         return {
             raw: new AWS.DynamoDB(dynamoOptions),
@@ -123,14 +180,18 @@ class ServerlessDynamodbLocal {
     }
 
     seedHandler() {
-        const documentClient = this.dynamodbOptions().doc;
-        const seedSources = this.seedSources;
-        return BbPromise.each(seedSources, (source) => {
+        const options = this.options;
+        const dynamodb = this.dynamodbOptions(options);
+
+        return BbPromise.each(this.seedSources, (source) => {
             if (!source.table) {
                 throw new Error("seeding source \"table\" property not defined");
             }
-            return seeder.locateSeeds(source.sources || [])
-            .then((seeds) => seeder.writeSeeds(documentClient, source.table, seeds));
+            const seedPromise = seeder.locateSeeds(source.sources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
+            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
+            .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+            return BbPromise.all([seedPromise, rawSeedPromise]);
         });
     }
 
@@ -144,30 +205,52 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        const config = this.config;
+        const config = this.service.custom && this.service.custom.dynamodb || {};
         const options = _.merge({
-                sharedDb: this.options.sharedDb || true
+                sharedDb: this.options.sharedDb || true,
+                install_path: this.options.localPath
             },
             config && config.start,
             this.options
         );
 
-        dynamodbLocal.start(options);
+        // otherwise endHandler will be mis-informed
+        this.options = options;
+
+        let dbPath = options.dbPath;
+        if (dbPath) {
+          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath);
+        }
+
+        if (!options.noStart) {
+          dynamodbLocal.start(options);
+        }
         return BbPromise.resolve()
         .then(() => options.migrate && this.migrateHandler())
         .then(() => options.seed && this.seedHandler());
     }
 
     endHandler() {
-        this.serverlessLog('DynamoDB - stopping local database');
-        dynamodbLocal.stop(this.port);
+        if (!this.options.noStart) {
+            this.serverlessLog("DynamoDB - stopping local database");
+            dynamodbLocal.stop(this.port);
+        }
     }
 
-    /**
-     * Gets the table definitions
-     */
-    get tables() {
-        const resources = this.service.resources.Resources;
+    getDefaultStack() {
+        return _.get(this.service, "resources");
+    }
+
+    getAdditionalStacks() {
+        return _.values(_.get(this.service, "custom.additionalStacks", {}));
+    }
+
+    hasAdditionalStacksPlugin() {
+        return _.get(this.service, "plugins", []).includes("serverless-plugin-additional-stacks");
+    }
+
+    getTableDefinitionsFromStack(stack) {
+        const resources = _.get(stack, "Resources", []);
         return Object.keys(resources).map((key) => {
             if (resources[key].Type === "AWS::DynamoDB::Table") {
                 return resources[key].Properties;
@@ -176,12 +259,30 @@ class ServerlessDynamodbLocal {
     }
 
     /**
+     * Gets the table definitions
+     */
+    get tables() {
+        let stacks = [];
+
+        const defaultStack = this.getDefaultStack();
+        if (defaultStack) {
+            stacks.push(defaultStack);
+        }
+
+        if (this.hasAdditionalStacksPlugin()) {
+            stacks = stacks.concat(this.getAdditionalStacks());
+        }
+
+        return stacks.map((stack) => this.getTableDefinitionsFromStack(stack)).reduce((tables, tablesInStack) => tables.concat(tablesInStack), []);
+    }
+
+    /**
      * Gets the seeding sources
      */
     get seedSources() {
         const config = this.service.custom.dynamodb;
         const seedConfig = _.get(config, "seed", {});
-        const seed = this.options.seed;
+        const seed = this.options.seed || config.start.seed || seedConfig;
         let categories;
         if (typeof seed === "string") {
             categories = seed.split(",");
@@ -197,10 +298,45 @@ class ServerlessDynamodbLocal {
 
     createTable(dynamodb, migration) {
         return new BbPromise((resolve, reject) => {
+            if (migration.StreamSpecification && migration.StreamSpecification.StreamViewType) {
+                migration.StreamSpecification.StreamEnabled = true;
+            }
+            if (migration.TimeToLiveSpecification) {
+              delete migration.TimeToLiveSpecification;
+            }
+            if (migration.SSESpecification) {
+              migration.SSESpecification.Enabled = migration.SSESpecification.SSEEnabled;
+              delete migration.SSESpecification.SSEEnabled;
+            }
+            if (migration.PointInTimeRecoverySpecification) {
+              delete migration.PointInTimeRecoverySpecification;
+            }
+            if (migration.Tags) {
+                delete migration.Tags;
+            }
+            if (migration.BillingMode === "PAY_PER_REQUEST") {
+                delete migration.BillingMode;
+
+                const defaultProvisioning = {
+                    ReadCapacityUnits: 5,
+                    WriteCapacityUnits: 5
+                };
+                migration.ProvisionedThroughput = defaultProvisioning;
+                if (migration.GlobalSecondaryIndexes) {
+                    migration.GlobalSecondaryIndexes.forEach((gsi) => {
+                        gsi.ProvisionedThroughput = defaultProvisioning;
+                    });
+                }
+              }
             dynamodb.raw.createTable(migration, (err) => {
                 if (err) {
-                    this.serverlessLog("DynamoDB - Error - ", err);
-                    reject(err);
+                    if (err.name === 'ResourceInUseException') {
+                        this.serverlessLog(`DynamoDB - Warn - table ${migration.TableName} already exists`);
+                        resolve();
+                    } else {
+                        this.serverlessLog("DynamoDB - Error - ", err);
+                        reject(err);
+                    }
                 } else {
                     this.serverlessLog("DynamoDB - created table " + migration.TableName);
                     resolve(migration);

@@ -3,7 +3,7 @@ serverless-dynamodb-local
 
 [![Join the chat at https://gitter.im/99xt/serverless-dynamodb-local](https://badges.gitter.im/99xt/serverless-dynamodb-local.svg)](https://gitter.im/99xt/serverless-dynamodb-local?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![npm version](https://badge.fury.io/js/serverless-dynamodb-local.svg)](https://badge.fury.io/js/serverless-dynamodb-local)
-[![license](https://img.shields.io/npm/l/serverless-dynamodb-local.svg)](https://www.npmjs.com/package/serverless-dynamodb-local)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## This Plugin Requires
 * serverless@v1-rc.1
@@ -51,8 +51,12 @@ All CLI options are optional:
 --sharedDb                -h  DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.
 --delayTransientStatuses  -t  Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.)
 --optimizeDbBeforeStartup -o  Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.
+--migration               -m  After starting dynamodb local, run dynamodb migrations.
+--heapInitial                 The initial heap size 
+--heapMax                     The maximum heap size
 --migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration.
 --seed                    -s  After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.
+--convertEmptyValues      -e  Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.
 ```
 
 All the above options can be added to serverless.yml to set default configuration: e.g.
@@ -60,11 +64,19 @@ All the above options can be added to serverless.yml to set default configuratio
 ```yml
 custom:
   dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
     start:
       port: 8000
       inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
       migrate: true
       seed: true
+      convertEmptyValues: true
+    # Uncomment only if you already have a DynamoDB running locally
+    # noStart: true
 ```
 
 ##  Migrations: sls dynamodb migrate
@@ -95,12 +107,17 @@ resources:
           WriteCapacityUnits: 1
 ```
 
+**Note:**
+DynamoDB local doesn't support TTL specification, therefore plugin will simply ignore ttl configuration from Cloudformation template.
+
 ## Seeding: sls dynamodb seed
 ### Configuration
 
 In `serverless.yml` seeding categories are defined under `dynamodb.seed`.
 
 If `dynamodb.start.seed` is true, then seeding is performed after table migrations.
+
+If you wish to use raw AWS AttributeValues to specify your seed data instead of Javascript types then simply change the variable of any such json files from `sources:` to `rawsources:`.
 
 ```yml
 dynamodb:
@@ -117,7 +134,7 @@ dynamodb:
     test:
       sources:
         - table: users
-          sources: [./fake-test-users.json]
+          rawsources: [./fake-test-users.json]
         - table: subscriptions
           sources: [./fake-test-subscriptions.json]
 ```
@@ -180,6 +197,17 @@ plugins:
 Make sure that `serverless-dynamodb-local` is above `serverless-offline` so it will be loaded earlier.
 
 Now your local DynamoDB database will be automatically started before running `serverless offline`.
+
+### Using with serverless-offline and serverless-webpack plugin
+Run `serverless offline start`. In comparison with `serverless offline`, the `start` command will fire an `init` and a `end` lifecycle hook which is needed for serverless-offline and serverless-dynamodb-local to switch off both ressources. 
+
+Add plugins to your `serverless.yml` file:
+```yaml
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline #serverless-offline needs to be last in the list
+```
 
 ## Reference Project
 * [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
