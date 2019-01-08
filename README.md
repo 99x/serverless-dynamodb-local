@@ -15,7 +15,7 @@ serverless-dynamodb-local
 * Table Creation for DynamoDB Local
 
 ## Install Plugin
-`npm install --save serverless-dynamodb-local`
+`sls plugin install --name serverless-dynamodb-local`
 
 Then in `serverless.yml` add following entry to the plugins array: `serverless-dynamodb-local`
 ```yml
