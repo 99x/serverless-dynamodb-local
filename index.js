@@ -314,7 +314,7 @@ class ServerlessDynamodbLocal {
             if (migration.Tags) {
                 delete migration.Tags;
             }
-            if (migration.BillingMode === "PAY_PER_REQUEST") {
+            if (migration.BillingMode === "PAY_PER_REQUEST" || migration.BillingMode === "PROVISIONED") {
                 delete migration.BillingMode;
 
                 const defaultProvisioning = {
