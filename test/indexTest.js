@@ -23,6 +23,12 @@ describe("Port function",function(){
       done();
     });
   });
+
+  it("Port value should be set as environment variable",function(){
+    let service = new Plugin(serverlessMock, {});
+    service.dynamodbOptions();
+    assert.equal(process.env.DYNAMODB_LOCAL_PORT, 8000);
+  });
 });
 
 describe("Check the dynamodb function",function(){

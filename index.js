@@ -167,6 +167,8 @@ class ServerlessDynamodbLocal {
             };
         }
 
+        process.env.DYNAMODB_LOCAL_PORT = this.port;
+
         return {
             raw: new AWS.DynamoDB(dynamoOptions),
             doc: new AWS.DynamoDB.DocumentClient(dynamoOptions)
