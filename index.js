@@ -145,6 +145,20 @@ class ServerlessDynamodbLocal {
         return host;
     }
 
+    get accessKeyId() {
+        const environment = process && process.env || {};
+        const accessKeyId = _.get(environment, "AWS_ACCESS_KEY_ID", "MOCK_ACCESS_KEY_ID");
+
+        return accessKeyId;
+    }
+
+    get secretAccessKey() {
+        const environment = process && process.env || {};
+        const secretAccessKey = _.get(environment, "AWS_SECRET_ACCESS_KEY", "MOCK_SECRET_ACCESS_KEY");
+
+        return secretAccessKey;
+    }
+
     dynamodbOptions(options) {
         let dynamoOptions = {};
 
@@ -161,8 +175,8 @@ class ServerlessDynamodbLocal {
             dynamoOptions = {
                 endpoint: `http://${this.host}:${this.port}`,
                 region: "localhost",
-                accessKeyId: "MOCK_ACCESS_KEY_ID",
-                secretAccessKey: "MOCK_SECRET_ACCESS_KEY",
+                accessKeyId: this.accessKeyId,
+                secretAccessKey: this.secretAccessKey,
                 convertEmptyValues: options && options.convertEmptyValues ? options.convertEmptyValues : false,
             };
         }
