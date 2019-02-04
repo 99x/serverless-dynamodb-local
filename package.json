@@ -30,16 +30,17 @@
     "bin": {},
     "scripts": {
         "test": "mocha ./test"
-    },
-    "dependencies": {
-        "aws-sdk": "^2.7.0",
-        "bluebird": "^3.4.6",
-        "dynamodb-localhost": "^0.0.6",
-        "lodash": "^4.17.0"
-    },
+    }
     "devDependencies": {
         "chai": "^4.1.1",
         "mocha": "^3.5.0",
         "should": "^11.2.1"
+        "aws-sdk": "^2.7.0",
+        "bluebird": "^3.4.6",
+        "dynamodb-localhost": "0.0.7",
+        "dynamodb-migrations": "0.0.10",
+        "lodash": "^4.17.0",
+        "mkdirp": "^0.5.0",
+        "tar": "^2.0.0"
     }
 }
