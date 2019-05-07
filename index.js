@@ -246,7 +246,9 @@ class ServerlessDynamodbLocal {
     }
 
     hasAdditionalStacksPlugin() {
-        return _.get(this.service, "plugins", []).includes("serverless-plugin-additional-stacks");
+        const pluginManager = this.serverless.pluginManager;
+        const modules = pluginManager.parsePluginsObject(this.service.plugins).modules;
+        return modules.includes("serverless-plugin-additional-stacks");
     }
 
     getTableDefinitionsFromStack(stack) {
