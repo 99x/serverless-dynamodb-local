@@ -88,7 +88,10 @@ class ServerlessDynamodbLocal {
                             convertEmptyValues: {
                                 shortcut: "e",
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
-                            }
+                            },
+                            leaveOn: {
+                                usage: 'Keep the process running until user sends kill command. This will kill the process the database is running once user sends terminate.'
+                            }                            
                         }
                     },
                     noStart: {
@@ -254,7 +257,19 @@ class ServerlessDynamodbLocal {
         } else {
             this.serverlessLog("Skipping start: DynamoDB Local is not available for stage: " + this.stage);
         }
+
+        return BbPromise.resolve()
+          .then(() => options.migrate && this.migrateHandler())
+          .then(() => options.seed && this.seedHandler())
+          .then(() => {
+              if (options.leaveOn) {
+                return BbPromise.resolve()
+                .then(() => this._listenForTermination())
+                .then(() => this.endHandler());
+              }
+          });
     }
+
 
     endHandler() {
         if (this.shouldExecute() && !this.options.noStart) {
@@ -285,6 +300,24 @@ class ServerlessDynamodbLocal {
             }
         }).filter((n) => n);
     }
+
+    _listenForTermination() {
+        // SIGINT will be usually sent when user presses ctrl+c
+        const waitForSigInt = new Promise(resolve => {
+        process.on('SIGINT', () => resolve('SIGINT'));
+        });
+
+        // SIGTERM is a default termination signal in many cases,
+        // for example when "killing" a subprocess spawned in node
+        // with child_process methods
+        const waitForSigTerm = new Promise(resolve => {
+        process.on('SIGTERM', () => resolve('SIGTERM'));
+        });
+
+        return Promise.race([waitForSigInt, waitForSigTerm]).then(command => {
+        this.serverlessLog(`Got ${command} signal. Will stop dynamodb local...`);
+        });
+    }    
 
     /**
      * Gets the table definitions
