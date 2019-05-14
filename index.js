@@ -90,7 +90,7 @@ class ServerlessDynamodbLocal {
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             },
                             userStop: {
-                                usage: 'After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates runinng process. When terminate signal received, it will stop the database on the running port.'
+                                usage: 'After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates running process. When terminate signal received, it will stop the database on the running port.'
                             }                            
                         }
                     },

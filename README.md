@@ -57,7 +57,7 @@ All CLI options are optional:
 --migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration.
 --seed                    -s  After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.
 --convertEmptyValues      -e  Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.
---userStop       After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates runinng process. When terminate signal received, it will stop the database on the running port.
+--userStop       After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates running process. When terminate signal received, it will stop the database on the running port.
 ```
 
 All the above options can be added to serverless.yml to set default configuration: e.g.
