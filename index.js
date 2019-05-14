@@ -90,7 +90,7 @@ class ServerlessDynamodbLocal {
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             },
                             userStop: {
-                                usage: 'After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates running process. When terminate signal received, it will stop the database on the running port.'
+                                usage: "After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates running process. When terminate signal received, it will stop the database on the running port."
                             }                            
                         }
                     },
@@ -263,7 +263,7 @@ class ServerlessDynamodbLocal {
           .then(() => options.seed && this.seedHandler())
           .then(() => {
               if (options.userStop) {
-                  this.serverlessLog("DynamoDB - Database is running. Waiting for user to stop...")
+                  this.serverlessLog("DynamoDB - Database is running. Waiting for user to stop...");
                 return BbPromise.resolve()
                 .then(() => this._listenForTermination())
                 .then(() => this.endHandler());
@@ -304,18 +304,18 @@ class ServerlessDynamodbLocal {
 
     _listenForTermination() {
         // SIGINT will be usually sent when user presses ctrl+c
-        const waitForSigInt = new Promise(resolve => {
-        process.on('SIGINT', () => resolve('SIGINT'));
+        const waitForSigInt = new Promise((resolve) => {
+        process.on("SIGINT", () => resolve("SIGINT"));
         });
 
         // SIGTERM is a default termination signal in many cases,
         // for example when "killing" a subprocess spawned in node
         // with child_process methods
-        const waitForSigTerm = new Promise(resolve => {
-        process.on('SIGTERM', () => resolve('SIGTERM'));
+        const waitForSigTerm = new Promise((resolve) => {
+        process.on("SIGTERM", () => resolve("SIGTERM"));
         });
 
-        return Promise.race([waitForSigInt, waitForSigTerm]).then(command => {
+        return Promise.race([waitForSigInt, waitForSigTerm]).then((command) => {
         this.serverlessLog(`Got ${command} signal. Will stop dynamodb local...`);
         });
     }    
