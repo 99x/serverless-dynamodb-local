@@ -115,13 +115,6 @@ class ServerlessDynamodbLocal {
             }
         };
 
-        const stage = (this.options && this.options.stage) || (this.service.provider && this.service.provider.stage);
-        if (this.config.stages && !this.config.stages.includes(stage)) {
-          // don't do anything for this stage
-          this.hooks = {};
-          return;
-        }
-
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
@@ -143,6 +136,27 @@ class ServerlessDynamodbLocal {
         const config = this.service.custom && this.service.custom.dynamodb || {};
         const host = _.get(config, "start.host", "localhost");
         return host;
+    }
+
+    /**
+     * Get the stage
+     *
+     * @return {String} the current stage
+     */
+    get stage() {
+      return (this.options && this.options.stage) || (this.service.provider && this.service.provider.stage);
+    }
+
+    /**
+     * To check if the handler needs to be executed based on stage
+     *
+     * @return {Boolean} if the handler can run for the provided stage
+     */
+    shouldExecute() {
+      if (this.config.stages && this.config.stages.includes(this.stage)) {
+        return true;
+      }
+      return false;
     }
 
     dynamodbOptions(options) {
@@ -174,25 +188,33 @@ class ServerlessDynamodbLocal {
     }
 
     migrateHandler() {
-        const dynamodb = this.dynamodbOptions();
-        const tables = this.tables;
-        return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
+        if (this.shouldExecute()) {
+            const dynamodb = this.dynamodbOptions();
+            const tables = this.tables;
+            return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
+        } else {
+            this.serverlessLog("Skipping migration: DynamoDB Local is not available for stage: " + this.stage);
+        }
     }
 
     seedHandler() {
-        const options = this.options;
-        const dynamodb = this.dynamodbOptions(options);
+        if (this.shouldExecute()) {
+            const options = this.options;
+            const dynamodb = this.dynamodbOptions(options);
 
-        return BbPromise.each(this.seedSources, (source) => {
-            if (!source.table) {
-                throw new Error("seeding source \"table\" property not defined");
-            }
-            const seedPromise = seeder.locateSeeds(source.sources || [])
-            .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
-            const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
-            .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
-            return BbPromise.all([seedPromise, rawSeedPromise]);
-        });
+            return BbPromise.each(this.seedSources, (source) => {
+                if (!source.table) {
+                    throw new Error("seeding source \"table\" property not defined");
+                }
+                const seedPromise = seeder.locateSeeds(source.sources || [])
+                .then((seeds) => seeder.writeSeeds(dynamodb.doc.batchWrite.bind(dynamodb.doc), source.table, seeds));
+                const rawSeedPromise = seeder.locateSeeds(source.rawsources || [])
+                .then((seeds) => seeder.writeSeeds(dynamodb.raw.batchWriteItem.bind(dynamodb.raw), source.table, seeds));
+                return BbPromise.all([seedPromise, rawSeedPromise]);
+            });
+        } else {
+            this.serverlessLog("Skipping seeding: DynamoDB Local is not available for stage: " + this.stage);
+        }
     }
 
     removeHandler() {
@@ -205,35 +227,41 @@ class ServerlessDynamodbLocal {
     }
 
     startHandler() {
-        const config = this.service.custom && this.service.custom.dynamodb || {};
-        const options = _.merge({
-                sharedDb: this.options.sharedDb || true,
-                install_path: this.options.localPath
-            },
-            config && config.start,
-            this.options
-        );
+        if (this.shouldExecute()) {
+            const config = this.service.custom && this.service.custom.dynamodb || {};
+            const options = _.merge({
+                    sharedDb: this.options.sharedDb || true,
+                    install_path: this.options.localPath
+                },
+                config && config.start,
+                this.options
+            );
 
-        // otherwise endHandler will be mis-informed
-        this.options = options;
+            // otherwise endHandler will be mis-informed
+            this.options = options;
 
-        let dbPath = options.dbPath;
-        if (dbPath) {
-          options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath);
+            let dbPath = options.dbPath;
+            if (dbPath) {
+              options.dbPath = path.isAbsolute(dbPath) ? dbPath : path.join(this.serverless.config.servicePath, dbPath);
+            }
+
+            if (!options.noStart) {
+              dynamodbLocal.start(options);
+            }
+            return BbPromise.resolve()
+            .then(() => options.migrate && this.migrateHandler())
+            .then(() => options.seed && this.seedHandler());
+        } else {
+            this.serverlessLog("Skipping start: DynamoDB Local is not available for stage: " + this.stage);
         }
-
-        if (!options.noStart) {
-          dynamodbLocal.start(options);
-        }
-        return BbPromise.resolve()
-        .then(() => options.migrate && this.migrateHandler())
-        .then(() => options.seed && this.seedHandler());
     }
 
     endHandler() {
-        if (!this.options.noStart) {
+        if (this.shouldExecute() && !this.options.noStart) {
             this.serverlessLog("DynamoDB - stopping local database");
             dynamodbLocal.stop(this.port);
+        } else {
+            this.serverlessLog("Skipping end: DynamoDB Local is not available for stage: " + this.stage);
         }
     }
 
