@@ -120,23 +120,24 @@ If `dynamodb.start.seed` is true, then seeding is performed after table migratio
 If you wish to use raw AWS AttributeValues to specify your seed data instead of Javascript types then simply change the variable of any such json files from `sources:` to `rawsources:`.
 
 ```yml
-dynamodb:
-  start:
-    seed: true
+custom:
+  dynamodb:
+    start:
+      seed: true
 
-  seed:
-    domain:
-      sources:
-        - table: domain-widgets
-          sources: [./domainWidgets.json]
-        - table: domain-fidgets
-          sources: [./domainFidgets.json]
-    test:
-      sources:
-        - table: users
-          rawsources: [./fake-test-users.json]
-        - table: subscriptions
-          sources: [./fake-test-subscriptions.json]
+    seed:
+      domain:
+        sources:
+          - table: domain-widgets
+            sources: [./domainWidgets.json]
+          - table: domain-fidgets
+            sources: [./domainFidgets.json]
+      test:
+        sources:
+          - table: users
+            rawsources: [./fake-test-users.json]
+          - table: subscriptions
+            sources: [./fake-test-subscriptions.json]
 ```
 
 ```bash
