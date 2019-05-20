@@ -89,7 +89,7 @@ class ServerlessDynamodbLocal {
                                 shortcut: "e",
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                             },
-                            userStop: {
+                            pauseDbAfterSeeding: {
                                 usage: "After starting dynamodb local and all migrations and seeding is completed (if set to run), process will stay open until user terminates running process. When terminate signal received, it will stop the database on the running port."
                             }                            
                         }
@@ -262,7 +262,7 @@ class ServerlessDynamodbLocal {
           .then(() => options.migrate && this.migrateHandler())
           .then(() => options.seed && this.seedHandler())
           .then(() => {
-              if (options.userStop) {
+              if (options.pauseDbAfterSeeding) {
                   this.serverlessLog("DynamoDB - Database is running. Waiting for user to stop...");
                 return BbPromise.resolve()
                 .then(() => this._listenForTermination())
