@@ -265,7 +265,7 @@ class ServerlessDynamodbLocal {
               if (options.pauseDbAfterSeeding) {
                   this.serverlessLog("DynamoDB - Database is running. Waiting for user to stop...");
                 return BbPromise.resolve()
-                .then(() => this._listenForTermination())
+                .then(() => this.listenForTermination())
                 .then(() => this.endHandler());
               }
           });
@@ -302,7 +302,7 @@ class ServerlessDynamodbLocal {
         }).filter((n) => n);
     }
 
-    _listenForTermination() {
+    listenForTermination() {
         // SIGINT will be usually sent when user presses ctrl+c
         const waitForSigInt = new Promise((resolve) => {
         process.on("SIGINT", () => resolve("SIGINT"));
