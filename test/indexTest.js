@@ -16,7 +16,7 @@ describe("Port function", function () {
 
   it("Port value should be >= 0 and < 65536", function () {
     let service = new Plugin(serverlessMock, {});
-    assert(service.port >= 0 && service.port < 65536)
+    assert(service.port >= 0 && service.port < 65536);
   });
 });
 
