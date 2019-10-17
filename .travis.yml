@@ -27,7 +27,7 @@ install:
   - sed -i '18 a plugins:' serverless.yml
   - sed -i '19 a - serverless-offline' serverless.yml
   - sed -i '20 a - serverless-dynamodb-local' serverless.yml
-  - "sed -i '21 a custom: { dynamodb: { stages: [dev] } }'"
+  - "sed -i '21 a custom: { dynamodb: { stages: [dev] } }' serverless.yml"
   - cd ..
   - cd ..
   - travis_retry npm install
