@@ -34,7 +34,7 @@
     "dependencies": {
         "aws-sdk": "^2.7.0",
         "bluebird": "^3.4.6",
-        "dynamodb-localhost": "^0.0.7",
+        "dynamodb-localhost": "0.0.9",
         "lodash": "^4.17.0"
     },
     "devDependencies": {
