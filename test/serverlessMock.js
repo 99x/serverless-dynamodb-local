@@ -2,12 +2,12 @@ module.exports = {
     service: {
         custom: {
             dynamodb: {
-                stages: ['test']
+                stages: ["test"]
             }
         }
     },
     cli: {
-        log: (...args) => { console.log(...args); }
+        log: () => { }
     },
     custom: {},
 };

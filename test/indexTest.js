@@ -14,19 +14,17 @@ function get(url) {
   return new Promise(function(resolve, reject) {
     http.get(url, function(incoming) {
       resolve(incoming);
-    }).on('error', reject);
+    }).on("error", reject);
   });
 }
 
 function getWithRetry(url, retryCount, previousError) {
   retryCount = retryCount || 0;
   if (retryCount >= 3) {
-    console.error('Exceeded retry count for get of ' + url, previousError);
-    return Promise.reject(new Error('Exceeded retry count for get of ' + url));
+    return Promise.reject(new Error("Exceeded retry count for get of " + url + ": " + previousError.message));
   }
   return get(url)
     .catch(function(error) {
-      console.error('error getting ' + url + ', retrying');
       return new Promise(function(resolve) { setTimeout(resolve, 10000); })
         .then(function() {
           return getWithRetry(url, retryCount + 1, error);
@@ -38,9 +36,9 @@ describe("Port function",function(){
   let service;
   before(function(){
     this.timeout(60000);
-    service = new Plugin(serverlessMock, { stage: 'test' });
+    service = new Plugin(serverlessMock, { stage: "test" });
     return service.installHandler();
-  })
+  });
 
   it("Port should return number",function(){
     assert(typeof service.port, "number");
@@ -53,7 +51,6 @@ describe("Port function",function(){
         return new Promise(function(resolve) { setTimeout(resolve, 2000); });
       })
       .then(function() {
-        console.log('started handler');
         return getWithRetry(`http://localhost:${service.port}/shell/`);
       })
       .then(function(response){
