@@ -127,11 +127,9 @@ function getSeedsAtLocation(location) {
  * Locates seeds given a set of files to scrape
  * @param {string[]} sources The filenames to scrape for seeds
  */
-function locateSeeds(sources, cwd) {
-  sources = sources || [];
-  cwd = cwd || process.cwd();
+function locateSeeds(locations) {
+  locations = locations || [];
 
-  const locations = sources.map((source) => path.join(cwd, source));
   return BbPromise.map(locations, (location) => {
     return fileExists(location).then((exists) => {
       if(!exists) {
