@@ -1,6 +1,8 @@
 language: node_js
 node_js:
-  - '4'
+  - '8'
+  - '10'
+  - '12'
 
 sudo: false
 
@@ -11,8 +13,8 @@ before_install:
   - npm init --yes
 
 install:
-  - npm install --save-dev serverless-offline 
-  - npm install -g serverless@1.0.0-rc.1
+  - npm install --save-dev serverless-offline
+  - npm install --save-dev serverless@^1
   - npm install aws-sdk
   - npm install --save dynamodb-doc-client-wrapper
   - serverless create --template aws-nodejs
@@ -25,23 +27,19 @@ install:
   - sed -i '18 a plugins:' serverless.yml
   - sed -i '19 a - serverless-offline' serverless.yml
   - sed -i '20 a - serverless-dynamodb-local' serverless.yml
+  - "sed -i '21 a custom: { dynamodb: { stages: [dev] } }' serverless.yml"
   - cd ..
   - cd ..
-  - npm install --save-dev mocha
-  - npm install --save-dev should
-  - npm install --save expect
-  - npm install --save request
-  - npm install --save chai
   - travis_retry npm install
   - cd test/sample-template
 
 before_script:
   - sls dynamodb install
-  - sls offline start & 
+  - sls offline start --stage dev &
   - sleep 15
-  - cd .. 
+  - cd ..
   - cd ..
   - npm run test
-  
+
 script:
   - npm test

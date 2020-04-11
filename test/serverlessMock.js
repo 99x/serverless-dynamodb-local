@@ -1,7 +1,13 @@
 module.exports = {
-    service: {},
-    cli: {
-        log: () => {}
+    service: {
+        custom: {
+            dynamodb: {
+                stages: ["test"]
+            }
+        }
     },
-    custom: {}
+    cli: {
+        log: () => { }
+    },
+    custom: {},
 };
