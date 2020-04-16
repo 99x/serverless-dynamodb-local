@@ -25,6 +25,10 @@ class ServerlessDynamodbLocal {
                         lifecycleEvents: ["migrateHandler"],
                         usage: "Creates local DynamoDB tables from the current Serverless configuration"
                     },
+                    drop: {
+                        lifecycleEvents: ["dropHandler"],
+                        usage: "Drops local DynamoDB tables from the current Serverless configuration",
+                    },
                     seed: {
                         lifecycleEvents: ["seedHandler"],
                         usage: "Seeds local DynamoDB tables with data",
@@ -117,6 +121,7 @@ class ServerlessDynamodbLocal {
 
         this.hooks = {
             "dynamodb:migrate:migrateHandler": this.migrateHandler.bind(this),
+            "dynamodb:drop:dropHandler": this.dropHandler.bind(this),
             "dynamodb:seed:seedHandler": this.seedHandler.bind(this),
             "dynamodb:remove:removeHandler": this.removeHandler.bind(this),
             "dynamodb:install:installHandler": this.installHandler.bind(this),
@@ -194,6 +199,16 @@ class ServerlessDynamodbLocal {
             return BbPromise.each(tables, (table) => this.createTable(dynamodb, table));
         } else {
             this.serverlessLog("Skipping migration: DynamoDB Local is not available for stage: " + this.stage);
+        }
+    }
+
+    dropHandler() {
+        if (this.shouldExecute()) {
+            const dynamodb = this.dynamodbOptions();
+            const tables = this.tables;
+            return BbPromise.each(tables, table => this.dropTable(dynamodb, table));
+        } else {
+            this.serverlessLog("Skipping drop: DynamoDB Local is not available for stage: " + this.stage);
         }
     }
 
@@ -367,6 +382,25 @@ class ServerlessDynamodbLocal {
                     }
                 } else {
                     this.serverlessLog("DynamoDB - created table " + migration.TableName);
+                    resolve(migration);
+                }
+            });
+        });
+    }
+
+    dropTable(dynamodb, migration) {
+        return new BbPromise((resolve, reject) => {
+            dynamodb.raw.deleteTable({ TableName: migration.TableName }, err => {
+                if (err) {
+                    if (err.name === "ResourceNotFoundException") {
+                        this.serverlessLog(`DynamoDB - Warn - table ${migration.TableName} does not exist`);
+                        resolve();
+                    } else {
+                        this.serverlessLog("DynamoDB - Error - ", err);
+                        reject(err);
+                    }
+                } else {
+                    this.serverlessLog("DynamoDB - dropped table " + migration.TableName);
                     resolve(migration);
                 }
             });
