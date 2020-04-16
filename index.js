@@ -206,7 +206,7 @@ class ServerlessDynamodbLocal {
         if (this.shouldExecute()) {
             const dynamodb = this.dynamodbOptions();
             const tables = this.tables;
-            return BbPromise.each(tables, table => this.dropTable(dynamodb, table));
+            return BbPromise.each(tables, (table) => this.dropTable(dynamodb, table));
         } else {
             this.serverlessLog("Skipping drop: DynamoDB Local is not available for stage: " + this.stage);
         }
@@ -390,7 +390,7 @@ class ServerlessDynamodbLocal {
 
     dropTable(dynamodb, migration) {
         return new BbPromise((resolve, reject) => {
-            dynamodb.raw.deleteTable({ TableName: migration.TableName }, err => {
+            dynamodb.raw.deleteTable({ TableName: migration.TableName }, (err) => {
                 if (err) {
                     if (err.name === "ResourceNotFoundException") {
                         this.serverlessLog(`DynamoDB - Warn - table ${migration.TableName} does not exist`);
