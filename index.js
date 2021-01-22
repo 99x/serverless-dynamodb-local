@@ -11,7 +11,6 @@ class ServerlessDynamodbLocal {
         this.serverless = serverless;
         this.service = serverless.service;
         this.serverlessLog = serverless.cli.log.bind(serverless.cli);
-        this.config = this.service.custom && this.service.custom.dynamodb || {};
         this.options = _.merge({
           localPath: serverless.config && path.join(serverless.config.servicePath, '.dynamodb')
           },
@@ -153,7 +152,8 @@ class ServerlessDynamodbLocal {
      * @return {Boolean} if the handler can run for the provided stage
      */
     shouldExecute() {
-      if (this.config.stages && this.config.stages.includes(this.stage)) {
+      const config = this.service.custom && this.service.custom.dynamodb || {};
+      if (config.stages && config.stages.includes(this.stage)) {
         return true;
       }
       return false;
