@@ -124,6 +124,10 @@ class ServerlessDynamodbLocal {
             "before:offline:start:init": this.startHandler.bind(this),
             "before:offline:start:end": this.endHandler.bind(this),
         };
+
+        if (_.get(this.config, "start.hook")) {
+            this.hooks[_.get(this.config, "start.hook")] = this.startHandler.bind(this);
+        }
     }
 
     get port() {
