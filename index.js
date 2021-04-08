@@ -31,7 +31,8 @@ class ServerlessDynamodbLocal {
                         options: {
                             online: {
                                 shortcut: "o",
-                                usage: "Will connect to the tables online to do an online seed run"
+                                usage: "Will connect to the tables online to do an online seed run",
+                                type: "boolean"
                             }
                         }
                     },
@@ -41,53 +42,66 @@ class ServerlessDynamodbLocal {
                         options: {
                             port: {
                                 shortcut: "p",
-                                usage: "The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000"
+                                usage: "The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000",
+                                type: "string"
                             },
                             cors: {
                                 shortcut: "c",
-                                usage: "Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated \"allow\" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access."
+                                usage: "Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated \"allow\" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.",
+                                type: "string"
                             },
                             inMemory: {
                                 shortcut: "i",
-                                usage: "DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once."
+                                usage: "DynamoDB; will run in memory, instead of using a database file. When you stop DynamoDB;, none of the data will be saved. Note that you cannot specify both -dbPath and -inMemory at once.",
+                                type: "boolean"
                             },
                             dbPath: {
                                 shortcut: "d",
-                                usage: "The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end."
+                                usage: "The directory where DynamoDB will write its database file. If you do not specify this option, the file will be written to the current directory. Note that you cannot specify both -dbPath and -inMemory at once. For the path, current working directory is <projectroot>/node_modules/serverless-dynamodb-local/dynamob. For example to create <projectroot>/node_modules/serverless-dynamodb-local/dynamob/<mypath> you should specify -d <mypath>/ or --dbPath <mypath>/ with a forwardslash at the end.",
+                                type: "string"
                             },
                             sharedDb: {
                                 shortcut: "h",
-                                usage: "DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration."
+                                usage: "DynamoDB will use a single database file, instead of using separate files for each credential and region. If you specify -sharedDb, all DynamoDB clients will interact with the same set of tables regardless of their region and credential configuration.",
+                                type: "boolean"
                             },
                             delayTransientStatuses: {
                                 shortcut: "t",
-                                usage: "Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status."
+                                usage: "Causes DynamoDB to introduce delays for certain operations. DynamoDB can perform some tasks almost instantaneously, such as create/update/delete operations on tables and indexes; however, the actual DynamoDB service requires more time for these tasks. Setting this parameter helps DynamoDB simulate the behavior of the Amazon DynamoDB web service more closely. (Currently, this parameter introduces delays only for global secondary indexes that are in either CREATING or DELETING status.",
+                                type: "boolean"
                             },
                             optimizeDbBeforeStartup: {
                                 shortcut: "o",
-                                usage: "Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter."
+                                usage: "Optimizes the underlying database tables before starting up DynamoDB on your computer. You must also specify -dbPath when you use this parameter.",
+                                type: "boolean"
                             },
                             migrate: {
                                 shortcut: "m",
-                                usage: "After starting dynamodb local, create DynamoDB tables from the current serverless configuration."
+                                usage: "After starting dynamodb local, create DynamoDB tables from the current serverless configuration.",
+                                type: "boolean"
                             },
                             seed: {
                                 shortcut: "s",
                                 usage: "After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.",
+                                type: "boolean"
                             },
                             migration: {
                                 shortcut: 'm',
-                                usage: 'After starting dynamodb local, run dynamodb migrations'
+                                usage: 'After starting dynamodb local, run dynamodb migrations',
+                                type: "boolean"
                             },
                             heapInitial: {
-                                usage: 'The initial heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                                usage: 'The initial heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"',
+                                type: "string"
                             },
                             heapMax: {
-                                usage: 'The maximum heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"'
+                                usage: 'The maximum heap size. Specify megabytes, gigabytes or terabytes using m, b, t. E.g., "2m"',
+                                type: "string"
                             },
                             convertEmptyValues: {
                                 shortcut: "e",
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
+                                type: "boolean"
                             }
                         }
                     },
@@ -106,7 +120,8 @@ class ServerlessDynamodbLocal {
                         options: {
                             localPath: {
                                 shortcut: "x",
-                                usage: "Local dynamodb install path"
+                                usage: "Local dynamodb install path",
+                                type: "string"
                             }
                         }
 

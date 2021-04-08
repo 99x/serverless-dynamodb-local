@@ -20,7 +20,7 @@
 
 #### **Do you have questions about the source code?**
 
-* Ask any question about how to use serverless-dynamodb-local in the [Glitter](https://gitter.im/99xt/serverless-dynamodb-local?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
+* Ask any question about how to use serverless-dynamodb-local in the [Gitter](https://gitter.im/99xt/serverless-dynamodb-local?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge).
 
 </br>
 
@@ -30,4 +30,4 @@ Thanks! :heart: :heart: :heart:
 
 serverless-dynamodb-local Team
 
-CONTRIBUTING file inspired/based on [rails contrubiting](https://github.com/rails/rails/blob/master/CONTRIBUTING.md)
+CONTRIBUTING file inspired/based on [rails contributing](https://github.com/rails/rails/blob/master/CONTRIBUTING.md)
