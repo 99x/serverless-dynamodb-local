@@ -32,6 +32,19 @@ function getWithRetry(url, retryCount, previousError) {
     });
 }
 
+function startHandler(service) {
+  return service.startHandler()
+      .then(function() {
+        return new Promise(function(resolve) { setTimeout(resolve, 2000); });
+      })
+      .then(function() {
+        return getWithRetry(`http://localhost:${service.port}/shell/`);
+      })
+      .then(function(response){
+        assert.equal(response.statusCode, 200);
+      });
+}
+
 describe("Port function",function(){
   let service;
   before(function(){
@@ -46,16 +59,7 @@ describe("Port function",function(){
 
   it("Port value should be >= 0 and < 65536",function() {
     this.timeout(40000);
-    return service.startHandler()
-      .then(function() {
-        return new Promise(function(resolve) { setTimeout(resolve, 2000); });
-      })
-      .then(function() {
-        return getWithRetry(`http://localhost:${service.port}/shell/`);
-      })
-      .then(function(response){
-        assert.equal(response.statusCode, 200);
-      });
+    return startHandler(service);    
   });
 
   after(function(){
@@ -63,6 +67,20 @@ describe("Port function",function(){
   });
 });
 
+describe("Check stage matches",function(){
+  let service;
+
+  it("Start for stage with regex",function() {
+    service = new Plugin(serverlessMock, { stage: "dev-55" });
+    service.installHandler();
+    this.timeout(40000);
+    return startHandler(service);    
+  });
+
+  after(function(){
+    return service.endHandler();
+  });
+});
 describe("Check the dynamodb function",function(){
   it("Endpoint should listen to the port",function () {
      let server;

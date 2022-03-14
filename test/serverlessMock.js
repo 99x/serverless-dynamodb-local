@@ -2,7 +2,7 @@ module.exports = {
     service: {
         custom: {
             dynamodb: {
-                stages: ["test"]
+                stages: ["test", "dev-\d+"]
             }
         }
     },
