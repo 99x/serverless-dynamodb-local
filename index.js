@@ -5,6 +5,8 @@ const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
 const seeder = require("./src/seeder");
 const path = require('path');
+const matchStage = require('./src/util');
+const { match } = require("assert");
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
@@ -169,7 +171,7 @@ class ServerlessDynamodbLocal {
      */
     shouldExecute() {
       if (this.config.stages) {
-        return this.config.stages.some((stage) => this.stage.match(new RegExp(stage)).length > 0);
+        return this.config.stages.some((stage) => matchStage(this.stage, stage));
       }
       return false;
     }

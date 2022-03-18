@@ -32,9 +32,6 @@ function getWithRetry(url, retryCount, previousError) {
     });
 }
 
-function startHandler(service) {
-}
-
 describe("Port function",function(){
   let service;
   before(function(){
@@ -49,7 +46,7 @@ describe("Port function",function(){
 
   it("Port value should be >= 0 and < 65536",function() {
     this.timeout(40000);
-  return service.startHandler()
+    return service.startHandler()
       .then(function() {
         return new Promise(function(resolve) { setTimeout(resolve, 2000); });
       })

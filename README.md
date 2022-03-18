@@ -91,9 +91,10 @@ Docker setup:
 ```yml
 custom:
   dynamodb:
-  # If you only want to use DynamoDB Local in some stages, declare them here
+  # If you only want to use DynamoDB Local in some stages, declare them here as string or stringified regex
     stages:
       - dev
+      - 'dev-\\d+'
     start:
       docker: true
       port: 8000
