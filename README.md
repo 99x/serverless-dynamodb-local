@@ -7,10 +7,11 @@ serverless-dynamodb-local
 
 ## This Plugin Requires
 * serverless@^1
-* Java Runtime Engine (JRE) version 6.x or newer
+* Java Runtime Engine (JRE) version 6.x or newer _OR_ docker CLI client
 
 ## Features
-* Install DynamoDB Local
+* Install DynamoDB Local Java program
+* Run DynamoDB Local as Java program on the local host or in docker container
 * Start DynamoDB Local with all the parameters supported (e.g port, inMemory, sharedDb)
 * Table Creation for DynamoDB Local
 
@@ -24,7 +25,7 @@ plugins:
 ```
 
 ## Using the Plugin
-1) Install DynamoDB Local
+1) Install DynamoDB Local (unless using docker setup, see below)
 `sls dynamodb install`
 
 2) Add DynamoDB Resource definitions to your Serverless configuration, as defined here: https://serverless.com/framework/docs/providers/aws/guide/resources/#configuration
@@ -36,11 +37,16 @@ plugins:
 Note: Read the detailed section for more information on advanced options and configurations. Open a browser and go to the url http://localhost:8000/shell to access the web shell for dynamodb local.
 
 ## Install: sls dynamodb install
+This installs the Java program locally. If using docker, this step is not required.
+
 To remove the installed dynamodb local, run:
 `sls dynamodb remove`
 Note: This is useful if the sls dynamodb install failed in between to completely remove and install a new copy of DynamoDB local.
 
 ## Start: sls dynamodb start
+This starts the DynamoDB Local instance, either as a local Java program or, if the `--docker` flag is set, 
+by running it within a docker container. The default is to run it as a local Java program.
+
 All CLI options are optional:
 
 ```
@@ -57,6 +63,8 @@ All CLI options are optional:
 --migrate                 -m  After starting DynamoDB local, create DynamoDB tables from the Serverless configuration.
 --seed                    -s  After starting and migrating dynamodb local, injects seed data into your tables. The --seed option determines which data categories to onload.
 --convertEmptyValues      -e  Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.
+--docker                      Run DynamoDB inside docker container instead of as a local Java program
+--dockerImage                 Specify custom docker image. Default: amazon/dynamodb-local
 ```
 
 All the above options can be added to serverless.yml to set default configuration: e.g.
@@ -73,6 +81,24 @@ custom:
       inMemory: true
       heapInitial: 200m
       heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+    # Uncomment only if you already have a DynamoDB running locally
+    # noStart: true
+```
+
+Docker setup:
+```yml
+custom:
+  dynamodb:
+  # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      docker: true
+      port: 8000
+      inMemory: true
       migrate: true
       seed: true
       convertEmptyValues: true
