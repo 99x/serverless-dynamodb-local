@@ -102,6 +102,13 @@ describe ("createTable functon",function(){
   });
 });
 
+describe ("dropTable functon",function(){
+  it ("Should check as a function",function(){
+    const tbl = Plugin.prototype.dropTable;
+    assert.equal(typeof tbl, "function");
+  });
+});
+
 describe ("Check the Seeder file",function(){
   it("Table name shoud be a string",function(){
     let tblName = seeder.writeSeeds.name;

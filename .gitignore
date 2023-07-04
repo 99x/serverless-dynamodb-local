@@ -1,2 +1,5 @@
 /dynamodb/bin
 /node_modules
+
+# asdf config file
+.tool-versions

@@ -182,6 +182,11 @@ If seed config is set to true, your configuration will be seeded automatically o
 ]
 ```
 
+##  Dropping tables: sls dynamodb drop
+When running a locally managed DynamoDB instance via sls dynamodb start, your tables go away when you stop the instance. If you use a long running server, like [Local Stack](https://github.com/localstack/localstack), you can use the drop command to drop all the tables that are defined in your `serverless.yml` file as described in the "migrations" section.
+
+Because this is intended to be run manually, there is no configuration for this command.
+
 ## Using DynamoDB Local in your code
 You need to add the following parameters to the AWS NODE SDK dynamodb constructor
 
