@@ -102,6 +102,10 @@ class ServerlessDynamodbLocal {
                                 shortcut: "e",
                                 usage: "Set to true if you would like the document client to convert empty values (0-length strings, binary buffers, and sets) to be converted to NULL types when persisting to DynamoDB.",
                                 type: "boolean"
+                            },
+                            localPath: {
+                                usage: "Set the path to the DDB Local installation.",
+                                type: "string"
                             }
                         }
                     },
