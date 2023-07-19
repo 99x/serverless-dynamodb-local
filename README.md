@@ -76,6 +76,7 @@ custom:
     stages:
       - dev
     start:
+      host: localhost # localhost by default, but you can specify any host
       port: 8000
       inMemory: true
       heapInitial: 200m
