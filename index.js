@@ -45,6 +45,10 @@ class ServerlessDynamodbLocal {
                                 usage: "The port number that DynamoDB will use to communicate with your application. If you do not specify this option, the default port is 8000",
                                 type: "string"
                             },
+                            host: {
+                                shortcut: "h",
+                                usage: "The host name that DynamoDB will use to communicate with your application. If you do not specify this option, the default host name is 'localhost'"
+                            },
                             cors: {
                                 shortcut: "c",
                                 usage: "Enable CORS support (cross-origin resource sharing) for JavaScript. You must provide a comma-separated \"allow\" list of specific domains. The default setting for -cors is an asterisk (*), which allows public access.",
@@ -142,15 +146,25 @@ class ServerlessDynamodbLocal {
     }
 
     get port() {
-        const config = this.service.custom && this.service.custom.dynamodb || {};
-        const port = _.get(config, "start.port", 8000);
-        return port;
+      const config = this.service.custom && this.service.custom.dynamodb || {};
+      const options = _.merge(
+        {},
+        config.start,
+        this.options
+      );
+      const port = options["port"] || 8000;
+      return port;
     }
 
     get host() {
-        const config = this.service.custom && this.service.custom.dynamodb || {};
-        const host = _.get(config, "start.host", "localhost");
-        return host;
+      const config = this.service.custom && this.service.custom.dynamodb || {};
+      const options = _.merge(
+        {},
+        config.start,
+        this.options
+      );
+      const host = options["host"] || "localhost";
+      return host;
     }
 
     /**
