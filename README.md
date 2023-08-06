@@ -236,6 +236,16 @@ plugins:
   - serverless-offline #serverless-offline needs to be last in the list
 ```
 
+### Using with other local servers ###
+
+You can configure a start hook to match your local serverless plugin. For example, with `serverless-wsgi`:
+```yaml
+custom:
+  dynamodb:
+    start:
+      hook: before:wsgi:serve:serve
+```
+
 ## Reference Project
 * [serverless-react-boilerplate](https://github.com/99xt/serverless-react-boilerplate)
 
