@@ -5,6 +5,8 @@ const AWS = require("aws-sdk");
 const dynamodbLocal = require("dynamodb-localhost");
 const seeder = require("./src/seeder");
 const path = require('path');
+const matchStage = require('./src/util');
+const { match } = require("assert");
 
 class ServerlessDynamodbLocal {
     constructor(serverless, options) {
@@ -168,8 +170,8 @@ class ServerlessDynamodbLocal {
      * @return {Boolean} if the handler can run for the provided stage
      */
     shouldExecute() {
-      if (this.config.stages && this.config.stages.includes(this.stage)) {
-        return true;
+      if (this.config.stages) {
+        return this.config.stages.some((stage) => matchStage(this.stage, stage));
       }
       return false;
     }
